@@ -1,0 +1,35 @@
+# Elastic Workflow: when 2 different devices report the same problem at the same place within 10 minutes,
+# announce it as a venue change (the API then re-plans each attendee on their own device).
+# Import in Kibana: Workflows -> Create -> paste. Set the two secrets first (see elastic/README.md).
+name: curbcut-confirm-reports
+description: Two matching reports from different devices within 10 minutes become a venue change.
+enabled: true
+triggers:
+  - type: scheduled
+    with:
+      every: 1m
+steps:
+  - name: find_confirmed
+    type: elasticsearch.esql.query
+    with:
+      query: >
+        FROM reports | WHERE created_at > NOW() - 10 minutes
+        | STATS devices = COUNT_DISTINCT(device_token) BY problem, location_id
+        | WHERE devices >= 2
+  - name: announce
+    type: foreach
+    foreach: "{{ steps.find_confirmed.output.values }}"
+    steps:
+      - name: post_report_probe
+        type: http
+        with:
+          url: "{{ consts.api_url }}/api/reports"
+          method: POST
+          headers:
+            Content-Type: application/json
+          body:
+            problem: "{{ foreach.item[0] }}"
+            location_id: "{{ foreach.item[1] }}"
+            device_token: "workflow-confirm-0001"
+consts:
+  api_url: "https://REPLACE-WITH-YOUR-API-HOST"
