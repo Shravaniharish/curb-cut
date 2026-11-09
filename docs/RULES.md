@@ -13,4 +13,5 @@ Tracks we enter: Never Merge Broken (Gitar), Stop Flying Blind (Dash0), AI SRE (
 | Merge Forward | Inclusive, accessible conferences | Demo + a11y tests + VoiceOver pass |
 
 Never stage an incident. Investigate whatever actually happens.
-Still to confirm at kickoff: submission deadline, team-size limit, demo length.
+Confirmed at kickoff: **submission deadline 5:15 pm MST** (feature freeze 5:00 pm, so only 15 minutes of margin), **team size 3**.
+Still to confirm: demo length.

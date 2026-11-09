@@ -1,7 +1,7 @@
 # Curb Cut: context for Claude Code
 
 Accessibility-first conference companion for the Cloud Native Hackathon (WeMakeDevs), Mon 9 Nov 2026, Salt Lake City (Mountain Time).
-Build 1:00-6:00 pm, feature freeze 5:00 pm, demo/judging 6:00-7:00 pm. Cut line: if behind at 3:30 pm, drop "catch me up", then dashboard polish.
+Build 1:00-6:00 pm, feature freeze 5:00 pm, **submission deadline 5:15 pm MST**, demo/judging 6:00-7:00 pm. Team of 3. Cut line: if behind at 3:30 pm, drop "catch me up", then dashboard polish.
 Guiding idea: a curb cut built for wheelchairs helps everyone. Every feature serves its target group and improves the default for all.
 
 Read `docs/TEAM.md` (who owns what), `docs/ARCHITECTURE.md` (contract between areas) and `docs/RULES.md` (hackathon rules and judging) first.

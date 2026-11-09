@@ -19,5 +19,6 @@ Steps from the project brief: 0 bootstrap, 1 telemetry, 2 data, 3 search, 4 web 
 - Merge to `main` only after Gitar review and one teammate's approval. Pull `main` often.
 - Everyone reviews at least one teammate's PR so all three can explain the whole system.
 - Put evidence in `docs/evidence/` the moment it exists (screenshot, trace link, PR link).
+- **Deadline: submit by 5:15 pm MST. Aim to submit by 4:45 pm** and update only if time remains. Before submitting: repo public, README complete, no secrets, evidence folder populated, every track entered plus Merge Forward, all three agree on IP ownership.
 - 3:30 pm check: behind? Cut "catch me up", then dashboard polish. 5:00 pm: freeze.
 - Demo (3 min): keyboard/screen-reader search + export; captions user rewinds and asks a written question; low-sensory demotion; organizer gaps; 30 s on how it was built.
