@@ -1,31 +1,56 @@
-# Architecture and contracts between areas
+# Architecture
 
+## Overview
 ```
-Browser (Next.js + OTel RUM) --HTTP/SSE--> FastAPI (OTel) --> Elasticsearch Serverless
-   profile in localStorage                    llm.py -> OpenAI (catch-up only)
+Phone/laptop (Next.js + OTel RUM)                 FastAPI (OTel)               Elasticsearch Serverless
+ profile + plan + alert history in localStorage    stateless logic        -->  talks, venue, transcript_chunks,
+   |  POST /api/search, /api/plan, /api/replan  -> planner, router             questions, reports, changes
+   |  GET  /api/changes/stream (SSE)            <- broadcasts venue changes
+   |  POST /api/changes/{id}/ack (anonymous)    -> counts for organizer
 Delivery: GitHub Actions -> GHCR -> Argo CD -> Radar namespace. Telemetry -> Dash0.
 ```
 
-## Elasticsearch indices (owner: Person 1)
-- `talks`: title, abstract (text + `semantic_text`), speaker, track, level, start, end, room, room_capacity, `access` { captions: none|auto|live_human, interpreter: bool, slides_ahead_hours: int, slides_alt_text: none|ai_draft|verified, code_heavy, live_demo, sensory {noise: low|med|high, lighting: normal|dark, applause: bool, crowd: small|med|large}, qa_format: mic|written|both, recording_transcript: bool }
-- `transcript_chunks`: talk_id, t_start, t_end, text (`semantic_text`), kind: speech|question
-- `questions`: talk_id, text, votes, status: queued|read, created_at
-- `attendees` (stretch, synthetic): interests, contact_pref green|yellow|red, affinity opt-ins
+## How re-planning stays private
+1. Organizer posts a change. The server saves it and pushes it to every open app over SSE (public venue info, like a PA announcement).
+2. Each app calls `POST /api/replan` with its own profile, current plan and the change id (and optionally a `personal` change: late / missed / break_now).
+3. The server returns `{affected, alert, plan, options}` and forgets the request.
+4. The app shows the alert in its `alert_mode` and posts an anonymous ack `{affected, replan_ms}`.
+5. Organizer counts come only from acks. Needs are never stored.
 
-## Client-side access profile (browser only)
-`captions_required`, `interpreter_preferred`, `screen_reader`, `text_first`, `low_sensory`, `slides_ahead_required`, `contact_pref`, optional `pronouns`, optional `affinity_opt_ins`. Hard needs become filters, preferences become boosts. The server never stores it and never logs it.
+## Planner
+Plain Python in `api/app/planner/`: `route.py` (`find_route`, Dijkstra on connectors with status ok, step-free filter, extra_time multiplier 1.5), `plan.py` (`build_plan`: slot filling, quiet breaks, one backup per slot, `leave_by`), `replan.py`. Unit-tested. Elastic Agent Builder wraps the same functions as tools: `find_step_free_route`, `find_alternative_talk`, `get_affected_talks`.
 
-## HTTP API (owners in brackets)
-- `POST /api/search` {q, profile} -> hits with `why` string [P1 logic in api/app/es, P2 router]
-- `GET /api/talks/{id}` [P2]
-- `GET /api/sessions/{id}/stream` SSE replay of canned transcript [P2]
-- `GET /api/sessions/{id}/catchup?seconds=60` [P2, uses api/app/llm.py]
-- `POST /api/sessions/{id}/questions`, `GET` queue, `POST .../questions/{qid}/read` (injects `kind=question` into stream) [P2]
-- `GET /api/organizer/gaps` ES aggregations [P1 query, P2 router]
-- `GET /api/schedule.ics|.csv|.txt?ids=` stateless [P2]
-- `GET /healthz` [done]
+## Elasticsearch indices
+- `talks`: title, abstract (`semantic_text`, Jina), speaker, track, level, start, end, room, topics, `access{...}`.
+- `venue`: rooms `{id, floor, step_free_entry, quiet_room, capacity, front_seating}` and connectors `{id, kind: elevator|ramp|stairs|path, from, to, minutes, step_free, status: ok|down}`.
+- `transcript_chunks`, `questions`.
+- `reports`: `{type, location, device_token, created_at}` (random token, not tied to a person).
+- `changes`: `{id, type, target, details, created_at, fixed_at}`.
+- No `attendees` or `profiles` index.
 
-Agree response JSON shapes in the first 30 minutes by writing Pydantic models in `api/app/schemas.py` (P2 opens that PR first; P1 and P3 review it). P3 builds the UI against those models using mock data until endpoints land.
+## HTTP API (Pydantic models in `api/app/schemas.py` first)
+| Route | Purpose |
+|---|---|
+| `POST /api/search {q, profile}` | hybrid search (BM25 + semantic, RRF), hard needs as filters, preferences as boosts, `why` per hit |
+| `POST /api/plan {profile}` | `[{slot, talk, backup, route{minutes, step_free, steps[]}, leave_by, why}]` |
+| `POST /api/replan {profile, plan, change_id, personal?}` | `{affected, alert{what_changed, what_stays, do_now, route, leave_by}, plan, options[]}` |
+| `GET /api/talks/{id}`, `GET /api/venue` | details, live status |
+| `POST /api/changes`, `POST /api/changes/{id}/fix` | organizer actions |
+| `GET /api/changes/stream` | SSE of changes |
+| `POST /api/changes/{id}/ack` | anonymous `{affected, replan_ms}` |
+| `POST /api/reports` | `{type, location, device_token}`; 2 matching in 10 min creates a change |
+| `GET /api/organizer/summary` | counts, reports, gaps aggregations |
+| `GET /api/sessions/{id}/stream`, `/catchup`, `/questions` | session companion |
+| `GET /api/schedule.ics\|.csv\|.txt?ids=` | exports |
+| `GET /healthz` | Kubernetes probe |
 
-## Telemetry (owner: Person 2)
-Custom spans/metrics: `search.latency`, `transcript.delivery_latency_ms`, `qa.queue_depth`. Frontend RUM via the pinned OTel web packages. SLOs: search latency; transcript delivery latency (start at 2 s).
+## SLOs (Dash0)
+- Every affected attendee re-planned within 30 s of the organizer's tap.
+- 0 step-free routes through a down connector (backed by a pytest that runs 100 random changes).
+- Search latency; transcript delivery under 2 s.
+
+## Telemetry
+OTel span on every route (`search`, `plan`, `route`, `replan`, `organizer_summary`...). No profile data or query text in attributes. Frontend RUM via OTel web SDK. Trace to show in the demo: organizer tap -> SSE -> replan -> ack.
+
+## Deploy
+Dockerfiles for `api` and `web`; GitHub Actions builds and pushes to GHCR; Argo CD syncs to the Radar namespace; secrets as Kubernetes Secrets, never in images.
