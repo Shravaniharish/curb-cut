@@ -182,6 +182,58 @@ export interface Reminder {
   firedAt: string | null;
 }
 
+// ---- Changes and alerts (Part B) ---------------------------------------------------------------------------
+
+/** Where a change came from. "event" is the venue or the programme; "personal" is something the attendee told us. */
+export type AlertOrigin = "event" | "personal";
+
+export type ChangeKind =
+  | "elevator_down"
+  | "elevator_fixed"
+  | "path_blocked"
+  | "room_full"
+  | "talk_moved"
+  | "running_late"
+  | "missed_talk"
+  | "break_now";
+
+/**
+ * One entry in the alert history. Every alert carries all three parts: what changed, what stays the same and what
+ * to do now. The history lives only on this device.
+ */
+export interface AlertRecord {
+  id: string;
+  /** UTC instant the alert was created, taken from the app clock. */
+  createdAt: string;
+  origin: AlertOrigin;
+  kind: ChangeKind;
+  whatChanged: string;
+  whatStays: string;
+  doNow: string;
+  /** Destination for "Show new route", when the alert has one. */
+  destinationRoomId: string | null;
+  leaveByIso: string | null;
+  /** The talk the alert is about, when there is one. */
+  talkId: string | null;
+  /** Talk whose transcript covers what was missed (Part C), when there is one. */
+  transcriptTalkId: string | null;
+  /** True when the condition behind the alert is a simulated demo condition rather than live venue data. */
+  simulated: boolean;
+  acknowledgedAt: string | null;
+}
+
+export type ReportProblem = "elevator_not_working" | "path_blocked" | "too_loud" | "no_captions";
+
+export interface ReportRecord {
+  id: string;
+  createdAt: string;
+  problem: ReportProblem;
+  /** A place id from the venue graph, or a floor path id such as "path-floor-2". */
+  locationId: string;
+  /** Random per-device string. It is not tied to a person, and this demo sends it nowhere. */
+  deviceToken: string;
+}
+
 export type DemoClockState =
   | { mode: "live" }
   | { mode: "demo"; /** demo instant at the anchor */ anchorDemo: string; /** real epoch ms at the anchor */ anchorReal: number };
@@ -199,4 +251,10 @@ export interface PersistedState {
   reminder: Reminder | null;
   elevatorStatus: Record<ElevatorId, ElevatorStatus>;
   demoClock: DemoClockState;
+  /** Part B: alert history, oldest first. Capped at ALERT_HISTORY_LIMIT entries. */
+  alerts: AlertRecord[];
+  /** Part B: problem reports made on this device. */
+  reports: ReportRecord[];
+  /** Part B: when the Alerts tab was last opened, so "while you were away" can count what is new. */
+  alertsSeenAt: string | null;
 }

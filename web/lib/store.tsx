@@ -10,11 +10,12 @@ import { buildAgenda } from "./agenda";
 import type { AgendaResult } from "./agenda";
 import { DEMO_TALKS } from "./fixtures/talks";
 import { createDemoVenue } from "./fixtures/venue";
-import { defaultState } from "./preferences";
+import { ALERT_HISTORY_LIMIT, REPORT_HISTORY_LIMIT, defaultState } from "./preferences";
 import { clearAllCurbCutData, loadSearchQuery, loadState, saveSearchQuery, saveState } from "./storage";
 import { clockNowIso } from "./time";
 import { withSpan } from "./telemetry";
 import type {
+  AlertRecord,
   AttendeePreferences,
   DemoClockState,
   ElevatorId,
@@ -23,8 +24,13 @@ import type {
   Onboarding,
   PersistedState,
   Reminder,
+  ReportRecord,
   Talk,
 } from "./types";
+
+/** An alert before it is stored: the store adds the id, the timestamp and the unacknowledged state. */
+export type AlertDraft = Omit<AlertRecord, "id" | "createdAt" | "acknowledgedAt">;
+export type ReportDraft = Omit<ReportRecord, "id" | "createdAt">;
 
 export interface ReminderNotice {
   talkTitle: string;
@@ -53,6 +59,13 @@ export interface AppContextValue {
   setCurrentRoute(route: PersistedState["currentRoute"]): void;
   setReminder(reminder: Reminder | null): void;
   setElevatorStatus(id: ElevatorId, status: ElevatorStatus): void;
+  /** Part B: append an alert to this device's history and return the stored record. */
+  recordAlert(draft: AlertDraft): AlertRecord;
+  acknowledgeAlert(alertId: string): void;
+  clearAlerts(): void;
+  markAlertsSeen(): void;
+  /** Part B: store a problem report on this device. Nothing is sent anywhere. */
+  recordReport(draft: ReportDraft): ReportRecord;
   setDemoClock(clock: DemoClockState): void;
   setSearchQuery(query: string): void;
   resetAll(): void;
@@ -67,6 +80,14 @@ export function useApp(): AppContextValue {
 }
 
 const TICK_MS = 5000;
+
+/** Random id for a locally stored record. It identifies the record, never the person. */
+function newId(): string {
+  const c = typeof crypto !== "undefined" ? crypto : undefined;
+  if (c?.randomUUID) return c.randomUUID();
+  if (c?.getRandomValues) return Array.from(c.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, "0")).join("");
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
 
 function applyDisplay(prefs: AttendeePreferences) {
   const root = document.documentElement;
@@ -193,6 +214,23 @@ export function AppStateProvider({ children, talks = DEMO_TALKS }: { children: R
       setCurrentRoute: (currentRoute) => patch((s) => ({ ...s, currentRoute })),
       setReminder: (reminder) => patch((s) => ({ ...s, reminder })),
       setElevatorStatus: (id, status) => patch((s) => ({ ...s, elevatorStatus: { ...s.elevatorStatus, [id]: status } })),
+      recordAlert: (draft) => {
+        const record: AlertRecord = { ...draft, id: `alert-${newId()}`, createdAt: nowIso, acknowledgedAt: null };
+        patch((s) => ({ ...s, alerts: [...s.alerts, record].slice(-ALERT_HISTORY_LIMIT) }));
+        return record;
+      },
+      acknowledgeAlert: (alertId) =>
+        patch((s) => ({
+          ...s,
+          alerts: s.alerts.map((a) => (a.id === alertId && !a.acknowledgedAt ? { ...a, acknowledgedAt: nowIso } : a)),
+        })),
+      clearAlerts: () => patch((s) => ({ ...s, alerts: [] })),
+      markAlertsSeen: () => patch((s) => ({ ...s, alertsSeenAt: nowIso })),
+      recordReport: (draft) => {
+        const record: ReportRecord = { ...draft, id: `report-${newId()}`, createdAt: nowIso };
+        patch((s) => ({ ...s, reports: [...s.reports, record].slice(-REPORT_HISTORY_LIMIT) }));
+        return record;
+      },
       setDemoClock: (demoClock) => patch((s) => ({ ...s, demoClock })),
       setSearchQuery: (query) => {
         setSearchQueryState(query);

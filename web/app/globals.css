@@ -504,6 +504,108 @@ ol.steps li {
   background: var(--card);
 }
 
+/* Part B: three-part change block. Amber left border, bold labels, "what to do now" largest. */
+.three-part {
+  border-left: 4px solid var(--changed);
+  padding-left: 0.875rem;
+}
+.three-part.calm {
+  border-left-width: 4px;
+  border-left-color: var(--teal);
+}
+.three-part-section + .three-part-section {
+  margin-top: 0.875rem;
+}
+.three-part-label {
+  font-size: 1rem;
+  text-transform: none;
+  margin-bottom: 0.125rem;
+  color: var(--text-2);
+}
+.three-part-text {
+  margin: 0;
+}
+.three-part-section[data-part="do-now"] .three-part-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.three-part[data-size="large"] .three-part-text {
+  font-size: 1.5rem;
+}
+.three-part[data-size="large"] .three-part-section[data-part="do-now"] .three-part-text {
+  font-size: 1.75rem;
+}
+.three-part[data-size="large"] .three-part-label {
+  font-size: 1.125rem;
+}
+
+/* Amber "plan changed" banner, full width of the page column. */
+.changed-banner {
+  background: var(--changed-bg);
+  border: 2px solid var(--changed);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+}
+/* The calm style uses the softer teal card instead of amber. */
+.calm-card {
+  background: #f2f8f8;
+}
+:root[data-contrast="high"] .calm-card {
+  background: var(--card);
+}
+
+/* Large single-line choices (what happened, what's wrong, where). */
+.big-choice {
+  display: block;
+  width: 100%;
+  min-height: 64px;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+}
+.big-choice:hover {
+  border-color: var(--teal);
+  background: #eef7f7;
+}
+:root[data-contrast="high"] .big-choice:hover {
+  background: #e6e6e6;
+}
+.big-choice[aria-pressed="true"] {
+  border-color: var(--teal);
+  border-width: 3px;
+  padding: calc(0.75rem - 1px) calc(1rem - 1px);
+}
+.big-choice-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.big-choice-icon {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  color: var(--teal);
+  font-weight: 700;
+}
+@media (forced-colors: active) {
+  .big-choice,
+  .changed-banner,
+  .big-choice-icon {
+    border: 2px solid ButtonText;
+  }
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

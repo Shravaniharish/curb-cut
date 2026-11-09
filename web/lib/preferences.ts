@@ -1,16 +1,25 @@
 import { TOPICS } from "./types";
 import type {
   AgendaOverrides,
+  AlertOrigin,
+  AlertRecord,
   ApproachPreference,
   AttendeePreferences,
+  ChangeKind,
   ElevatorId,
   ElevatorStatus,
   NotificationStyle,
   PersistedState,
+  ReportProblem,
+  ReportRecord,
   Topic,
 } from "./types";
 import { DEMO_ELEVATOR_STATUS, DEMO_START_LOCATION_ID } from "./fixtures/venue";
 import { DEFAULT_DEMO_CLOCK_TIME, demoClockAt } from "./time";
+
+/** How many alerts the device keeps. Older entries are dropped so storage cannot grow without bound. */
+export const ALERT_HISTORY_LIMIT = 50;
+export const REPORT_HISTORY_LIMIT = 50;
 
 export const TEXT_SCALE_MIN = 1;
 export const TEXT_SCALE_MAX = 1.5;
@@ -50,6 +59,9 @@ export function defaultState(realNowMs: number = Date.now()): PersistedState {
     reminder: null,
     elevatorStatus: { ...DEMO_ELEVATOR_STATUS },
     demoClock: demoClockAt(DEFAULT_DEMO_CLOCK_TIME, realNowMs),
+    alerts: [],
+    reports: [],
+    alertsSeenAt: null,
   };
 }
 
@@ -99,6 +111,72 @@ export function sanitizePreferences(input: unknown): AttendeePreferences {
       reducedMotion: bool(disp.reducedMotion, false),
     },
   };
+}
+
+const ORIGINS: AlertOrigin[] = ["event", "personal"];
+const CHANGE_KINDS: ChangeKind[] = [
+  "elevator_down",
+  "elevator_fixed",
+  "path_blocked",
+  "room_full",
+  "talk_moved",
+  "running_late",
+  "missed_talk",
+  "break_now",
+];
+const REPORT_PROBLEMS: ReportProblem[] = ["elevator_not_working", "path_blocked", "too_loud", "no_captions"];
+
+const text = (v: unknown, max = 300): string | null => (typeof v === "string" && v.trim() !== "" ? v.slice(0, max) : null);
+const id = (v: unknown): string | null => (typeof v === "string" && v.length > 0 && v.length <= 120 ? v : null);
+const instant = (v: unknown): string | null =>
+  typeof v === "string" && !Number.isNaN(new Date(v).getTime()) ? v : null;
+
+/** Drop anything that is not a complete alert: a half-written alert must never be shown as if it were real. */
+export function sanitizeAlerts(input: unknown): AlertRecord[] {
+  if (!Array.isArray(input)) return [];
+  const out: AlertRecord[] = [];
+  for (const raw of input) {
+    if (!isObj(raw)) continue;
+    const alertId = id(raw.id);
+    const createdAt = instant(raw.createdAt);
+    const whatChanged = text(raw.whatChanged);
+    const whatStays = text(raw.whatStays);
+    const doNow = text(raw.doNow);
+    if (!alertId || !createdAt || !whatChanged || !whatStays || !doNow) continue;
+    if (!ORIGINS.includes(raw.origin as AlertOrigin) || !CHANGE_KINDS.includes(raw.kind as ChangeKind)) continue;
+    out.push({
+      id: alertId,
+      createdAt,
+      origin: raw.origin as AlertOrigin,
+      kind: raw.kind as ChangeKind,
+      whatChanged,
+      whatStays,
+      doNow,
+      destinationRoomId: id(raw.destinationRoomId),
+      leaveByIso: instant(raw.leaveByIso),
+      talkId: id(raw.talkId),
+      transcriptTalkId: id(raw.transcriptTalkId),
+      simulated: bool(raw.simulated, false),
+      acknowledgedAt: instant(raw.acknowledgedAt),
+    });
+  }
+  return out.slice(-ALERT_HISTORY_LIMIT);
+}
+
+export function sanitizeReports(input: unknown): ReportRecord[] {
+  if (!Array.isArray(input)) return [];
+  const out: ReportRecord[] = [];
+  for (const raw of input) {
+    if (!isObj(raw)) continue;
+    const reportId = id(raw.id);
+    const createdAt = instant(raw.createdAt);
+    const locationId = id(raw.locationId);
+    const deviceToken = id(raw.deviceToken);
+    if (!reportId || !createdAt || !locationId || !deviceToken) continue;
+    if (!REPORT_PROBLEMS.includes(raw.problem as ReportProblem)) continue;
+    out.push({ id: reportId, createdAt, problem: raw.problem as ReportProblem, locationId, deviceToken });
+  }
+  return out.slice(-REPORT_HISTORY_LIMIT);
 }
 
 const strings = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
@@ -158,5 +236,8 @@ export function sanitizeState(input: unknown, realNowMs: number = Date.now()): P
         : null,
     elevatorStatus: elevators,
     demoClock,
+    alerts: sanitizeAlerts(input.alerts),
+    reports: sanitizeReports(input.reports),
+    alertsSeenAt: instant(input.alertsSeenAt),
   };
 }
