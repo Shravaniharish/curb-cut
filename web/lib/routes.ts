@@ -1,6 +1,6 @@
 /**
  * Route contract shared by Parts A, B and C. Part A implements plan, search, settings, talk and route.
- * Part B owns changes, alerts and report. Part C owns session join. Navigate with these helpers so a path
+ * Part B owns changes, alerts and report. Part C owns session join, organizer and presenter. Navigate with these helpers so a path
  * change happens in one place.
  */
 export const ROUTES = {
@@ -21,4 +21,8 @@ export const ROUTES = {
   talk: (talkId: string) => `/talks/${encodeURIComponent(talkId)}`,
   route: (destinationId: string) => `/route/${encodeURIComponent(destinationId)}`,
   joinSession: (sessionId: string) => `/sessions/${encodeURIComponent(sessionId)}/join`,
+  /** Part C, Screen 12: organizer dashboard (laptop). */
+  organizer: "/organizer",
+  /** Part C, Screen 13: presenter console for one talk (laptop). */
+  presenter: (talkId: string) => `/presenter/${encodeURIComponent(talkId)}`,
 } as const;

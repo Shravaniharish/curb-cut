@@ -75,6 +75,7 @@ export function computeLeaveBy(talkStartIso: string, travelMinutes: number, buff
 export const DEMO_CLOCK_PRESETS: { id: string; label: string; time: string }[] = [
   { id: "before", label: "1:30 PM (before the 2:00 PM talks)", time: "13:30" },
   { id: "near-leave", label: "1:44 PM (close to leave-by)", time: "13:44" },
+  { id: "during", label: "2:02 PM (2:00 PM talks under way)", time: "14:02" },
   { id: "between", label: "2:50 PM (between talks)", time: "14:50" },
 ];
 

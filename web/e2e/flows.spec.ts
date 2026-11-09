@@ -247,18 +247,27 @@ test.describe("exports, reminders, keyboard", () => {
   });
 });
 
-test.describe("placeholders for other parts are honest", () => {
-  for (const [path, title] of [["/alerts", "Alerts"], ["/report", "Report"], ["/changes", "My plans changed"], ["/sessions/talk-supply-chain/join", "Join session"]] as const) {
-    test(`${path} says it is a placeholder`, async ({ page }) => {
-      await page.goto(path);
-      await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
-      await expect(page.getByText("Development placeholder.")).toBeVisible();
-    });
-  }
+test.describe("Part C: presenter -> session companion", () => {
+  test("a written question reaches the presenter and appears in the transcript once read out", async ({ page, context }) => {
+    await page.goto("/alerts");
+    await page.getByText("Demo conditions").click();
+    await page.getByLabel("Demo clock").first().selectOption({ label: "2:02 PM (2:00 PM talks under way)" });
+    await page.goto("/sessions/talk-supply-chain/join");
+    await page.getByLabel("Your question").fill("How do we sign container images?");
+    await page.getByRole("button", { name: "Send" }).click();
+    await expect(visible(page.getByText(/Sent to the presenter/))).toBeVisible();
+
+    const presenter = await context.newPage();
+    await presenter.goto("/presenter/talk-supply-chain");
+    await expect(presenter.getByText("How do we sign container images?")).toBeVisible();
+    await presenter.getByRole("button", { name: "Mark as read out" }).click();
+
+    await expect(page.getByRole("log").getByText("How do we sign container images?")).toBeVisible();
+  });
 });
 
 test.describe("axe scans", () => {
-  const pages = ["/", "/setup/needs", "/setup/alerts", "/setup/topics", "/plan", "/search", "/settings", "/talks/talk-supply-chain", "/route/room-355", "/alerts"];
+  const pages = ["/", "/setup/needs", "/setup/alerts", "/setup/topics", "/plan", "/search", "/settings", "/talks/talk-supply-chain", "/route/room-355", "/alerts", "/sessions/talk-supply-chain/join", "/organizer", "/presenter/talk-supply-chain"];
   for (const path of pages) {
     test(`no axe violations on ${path}`, async ({ page }) => {
       await page.goto(path);

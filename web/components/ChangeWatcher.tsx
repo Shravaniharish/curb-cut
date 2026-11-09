@@ -12,22 +12,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Dialog } from "./Dialog";
 import { ChangeAlert } from "./ChangeAlert";
-import { buildElevatorDownAlert, buildElevatorFixedAlert, elevatorsUsed, routeTo, talkInFocus } from "@/lib/changes";
+import { buildElevatorDownAlert, buildElevatorFixedAlert, routeUsedElevator } from "@/lib/changes";
 import type { PlanContext } from "@/lib/changes";
 import { useApp } from "@/lib/store";
 import { usePlanContext } from "@/lib/usePlanContext";
 import type { AlertRecord, ElevatorId, ElevatorStatus } from "@/lib/types";
 
 const ELEVATORS: ElevatorId[] = ["A", "B", "C"];
-
-/** Did the route this plan needed before the change ride the elevator that has just gone out of service? */
-function routeUsedElevator(ctx: PlanContext, elevatorId: ElevatorId): boolean {
-  const talk = talkInFocus(ctx);
-  if (!talk) return false;
-  const route = routeTo(ctx, talk.roomId);
-  if (!route.ok) return false;
-  return elevatorsUsed(route, ctx.graph).includes(elevatorId);
-}
 
 export function ChangeWatcher() {
   const { ready, state, graph, recordAlert, acknowledgeAlert } = useApp();
