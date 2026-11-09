@@ -1,24 +1,29 @@
-# Team split (3 people)
+# Team and build order
 
-Each person runs Claude Code in their own area. Stay in your folders; ask the owner for anything else.
+Event: WeMakeDevs Cloud Native Hackathon, Mon Nov 9 2026, Salt Lake City. Hacking starts 11:00. Freeze and record 4:30. Aim to submit by 5:15. Hard deadline 5:30 (Mountain time). Submission: 3-minute video + repo link on wemakedevs.org/hackathons/cnh (one person creates the team and invites the others).
 
-| Person | Area | Folders | Tracks you carry |
+## Who builds what
+| Person | Frontend | Backend | Guide |
 |---|---|---|---|
-| **P1: Search and data** | Elasticsearch, seed data, organizer gaps, review tooling | `api/app/es/`, `data/`, `.gitar/`, `.github/workflows/` | Elasticsearch, Gitar |
-| **P2: Backend and platform** | API routers, telemetry, SSE/Q&A/exports, deploy | `api/app/routers/`, `api/app/telemetry.py`, `api/app/llm.py`, `api/app/schemas.py`, `deploy/` | Dash0, Radar |
-| **P3: Frontend and quality** | UI, accessibility, VoiceOver, README, evidence, demo | `web/`, `README.md`, `docs/evidence/` | Merge Forward, Best Overall |
+| Sravani | Part A: screens 1-4, Plan, Search, Settings, Talk details, Route | schemas, data, Elastic ingest + search, planner + route, talks/venue, exports, healthz | `guides/sravani-frontend.md`, `guides/sravani-backend.md` |
+| Gauri | Part B: Change alert (3 modes), Other options, Alerts, My plans changed, Report | replan, changes + SSE + ack, reports | `guides/gauri-part-b.md` |
+| Manasa | Part C: Session companion, Organizer dashboard, Presenter console | organizer summary, session stream/catch-up/questions, Elastic Agent Builder + Workflow, Gitar rules | `guides/manasa-part-c.md` |
 
-## Build order by person
-Steps from the project brief: 0 bootstrap, 1 telemetry, 2 data, 3 search, 4 web shell, 5 deploy, 6 exports, 7 session companion, 8 written Q&A, 9 organizer dashboard, 10 health/incidents, 11 freeze at 5:00 pm.
+Open owners to settle in the group chat: Dash0 setup (traces, SLOs, RUM), Radar + Argo CD deploy (Dockerfiles, GitHub Actions, secrets), WeMakeDevs submission, README (AI disclosure).
 
-**P1**: Step 2 (mappings, `data/generate.py` ~25 talks, 3-4 canned transcripts, idempotent seed) -> Step 3 (hybrid search with RRF, filters, boosts, `why`, tests) -> Step 9 aggregations -> Gitar instructions/rules tuning and CI auto-fix on, keep PRs small and frequent all day. Verify Elastic `semantic_text`/retriever syntax from Elastic docs first.
-**P2**: Step 1 telemetry (first hour) and `schemas.py` -> Step 5 deploy by 3:00 pm (Radar starter conventions, GHCR, Argo CD) -> Step 6 exports -> Step 7 stream/catch-up + latency metric -> Step 8 Q&A -> Step 10 SLOs, Dash0 dashboard, Agent0/MCP investigation, Radar AI investigation. Connect the Dash0 MCP and Radar MCP (`claude mcp add radar-cloud --scope user --transport http https://api.radarhq.io/mcp`).
-**P3**: Step 4 shell + 30-second skippable profile onboarding + results page against mock data -> Step 6 export buttons -> Step 7 companion UI (multi-line transcript, pause, jump back 30 s, live-region toggle) -> Step 8 Q&A and presenter console -> Step 9 dashboard page -> axe in CI, VoiceOver pass before freeze -> README, evidence index, demo rehearsal x2.
+## Build order (dependencies)
+1. `schemas.py` + `docs/api-examples/*.json` (Sravani B1). Everyone else waits for this.
+2. Frontend foundation: tokens, shared components (BottomTabBar, TalkCard, ThreePartChangeBlock, LeaveByLine), app shell, localStorage profile, mock data (Sravani A1, target 1:50 PM).
+3. Data + Elastic ingest (B2, B3). Planner + route (B5). Gauri's replan builds on these.
+4. In parallel: Gauri's changes/SSE, Manasa's organizer and session endpoints, each person's screens on mock data.
+5. Deploy via Radar/Argo CD (target 3:00).
+6. 3:30 cut check. 4:15 evidence in `docs/evidence/`. 4:30 freeze, record video.
 
-## Working rules for the team
-- Merge to `main` only after Gitar review and one teammate's approval. Pull `main` often.
-- Everyone reviews at least one teammate's PR so all three can explain the whole system.
-- Put evidence in `docs/evidence/` the moment it exists (screenshot, trace link, PR link).
-- **Deadline: submit by 5:15 pm MST. Aim to submit by 4:45 pm** and update only if time remains. Before submitting: repo public, README complete, no secrets, evidence folder populated, every track entered plus Merge Forward, all three agree on IP ownership.
-- 3:30 pm check: behind? Cut "catch me up", then dashboard polish. 5:00 pm: freeze.
-- Demo (3 min): keyboard/screen-reader search + export; captions user rewinds and asks a written question; low-sensory demotion; organizer gaps; 30 s on how it was built.
+## Rules of working
+- Branches: `feat/a*` (Sravani), `feat/b*`/`feat/g*` (Gauri), `feat/c*`/`feat/m*` (Manasa). Small PRs into `main`, rebase often.
+- Every PR goes through Gitar. Do not leave long-lived branches.
+- Anyone who changes a Pydantic model says so in the group chat.
+
+## Cut order if behind at 3:30
+Catch me up -> tech-word captions -> session companion -> problem reports UI (keep the Workflow, fed by a seeded report) -> dashboard polish. Elastic's four asks (ingest, Jina, Agent Builder, Workflow) are not cut.
+Never cut: profile + plan + route + re-plan on change in all 3 alert modes + organizer buttons + accessibility.
