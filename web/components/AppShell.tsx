@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { AppStateProvider, useApp } from "@/lib/store";
 import { formatTime } from "@/lib/time";
 import { BottomNavigation } from "./BottomNavigation";
+import { ChangeWatcher } from "./ChangeWatcher";
 import { SecondaryButton } from "./ui";
 
 function ReminderBanner() {
@@ -44,6 +45,8 @@ function Shell({ children }: { children: ReactNode }) {
       <main id="main" tabIndex={-1} className="page">
         {children}
       </main>
+      {/* Part B: an event change opens the alert over whatever screen the attendee is on. */}
+      <ChangeWatcher />
       <Suspense fallback={null}>
         <NavGate />
       </Suspense>
