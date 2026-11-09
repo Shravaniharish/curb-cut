@@ -28,18 +28,21 @@ function NextCard({ talk, label }: { talk: Talk; label: "Now" | "Next" }) {
   const why = whyFits(talk, prefs);
   const timeToLeave = leave.leaveByIso ? minutesBetween(nowIso, leave.leaveByIso) : null;
   return (
-    <section className="card" aria-labelledby={`${uid}-nownext-heading`}>
-      <p className="progress" style={{ marginBottom: 0 }}>{label}</p>
+    <section className={`card hero${label === "Now" ? " hero-now" : ""}`} aria-labelledby={`${uid}-nownext-heading`}>
+      <p className="eyebrow">{label === "Next" ? "Up next" : "Happening now"}<span className="sr-only">: {label}</span></p>
       <h2 id={`${uid}-nownext-heading`}>
         <Link href={ROUTES.talk(talk.id)}>{talk.title}</Link>
       </h2>
       <p className="muted">
         {formatTimeRange(talk.start, talk.end)} · {roomLabel(talk.roomId)} · Floor {talk.floor}
       </p>
-      <AccessBadgeList talk={talk} keys={["stepFree", "captions", "slides", "frontSeating"]} />
-      <p className="small" style={{ marginTop: "0.5rem" }}>
-        <strong>Why this fits you:</strong> {why.length ? `${why.join(". ")}.` : "Nothing in your choices rules it out."}
-      </p>
+      <details className="collapse quiet">
+        <summary>Access details and why this fits</summary>
+        <AccessBadgeList talk={talk} keys={["stepFree", "captions", "slides", "frontSeating"]} />
+        <p className="small" style={{ marginTop: "0.5rem" }}>
+          <strong>Why this fits you:</strong> {why.length ? `${why.join(". ")}.` : "Nothing in your choices rules it out."}
+        </p>
+      </details>
       {label === "Next" && leave.route.ok && leave.leaveByIso && leave.travelMinutes !== null && (
         <>
           <LeaveByIndicator leaveByIso={leave.leaveByIso} travelMinutes={leave.travelMinutes} bufferMinutes={leave.bufferMinutes} stepFree={prefs.required.stepFreeRouting} />
@@ -77,8 +80,8 @@ function Plan() {
   return (
     <div className="stack">
       <PageHeading>Your plan</PageHeading>
-      <p className="muted">
-        {formatDateLong(nowIso)} · {formatTime(nowIso)} Salt Lake City time
+      <p className="muted small">
+        {formatDateLong(nowIso)} · {formatTime(nowIso)}
         {state.demoClock.mode === "demo" ? " (demo clock)" : ""}
       </p>
       {state.onboarding === "guest" && (
@@ -166,7 +169,10 @@ function Plan() {
         </details>
       )}
 
-      <ExportPanel />
+      <details className="collapse quiet">
+        <summary>Save or share my plan</summary>
+        <ExportPanel />
+      </details>
     </div>
   );
 }

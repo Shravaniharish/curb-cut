@@ -192,6 +192,7 @@ test.describe("Flow 8: accessibility filtering", () => {
 test.describe("exports, reminders, keyboard", () => {
   test("downloads real .ics, .csv and .txt files", async ({ page }) => {
     await usePersona(page, "Marcus");
+    await page.getByText("Save or share my plan").click(); // the export tools sit behind a toggle
     for (const [button, name, expected] of [
       ["Calendar (.ics)", "curb-cut-plan-2026-11-09.ics", "BEGIN:VCALENDAR"],
       ["Spreadsheet (.csv)", "curb-cut-plan-2026-11-09.csv", "Title,Date,Start,End,Location,Details"],

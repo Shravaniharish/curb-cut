@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { LIVE, getTalks } from "@/lib/api";
@@ -51,6 +51,22 @@ function WatcherGate() {
   );
 }
 
+const TOP_LEVEL = new Set(["/", "/plan", "/search", "/alerts", "/report", "/settings"]);
+
+/** A plain "Back" on every inner page, so nobody gets stuck. Tab pages and onboarding do not need it. */
+function BackButton() {
+  const pathname = usePathname();
+  const router = useRouter();
+  if (TOP_LEVEL.has(pathname) || pathname.startsWith("/setup") || isStaffScreen(pathname)) return null;
+  return (
+    <div className="backbar">
+      <button type="button" className="back-btn" onClick={() => router.back()}>
+        <span aria-hidden="true">←</span> Back
+      </button>
+    </div>
+  );
+}
+
 function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="shell">
@@ -61,6 +77,7 @@ function Shell({ children }: { children: ReactNode }) {
         <p className="demo-banner">Demo mode: sample talks, a sample venue, simulated elevator status and a demo clock. Not real conference data.</p>
         <ReminderBanner />
       </header>
+      <BackButton />
       <main id="main" tabIndex={-1} className="page">
         {children}
       </main>
