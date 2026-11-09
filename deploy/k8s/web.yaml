@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/shravaniharish/curb-cut-web:latest
+          image: ghcr.io/shravaniharish/curb-cut-web:a3c2d7bc92d07e50d457d05638c3e60c6fe68ec2
           ports: [{containerPort: 3000}]
           readinessProbe: {httpGet: {path: /, port: 3000}, periodSeconds: 5}
           resources:

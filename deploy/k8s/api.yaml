@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: ghcr.io/shravaniharish/curb-cut-api:latest
+          image: ghcr.io/shravaniharish/curb-cut-api:a3c2d7bc92d07e50d457d05638c3e60c6fe68ec2
           ports: [{containerPort: 8000}]
           env:
             - {name: OTEL_SERVICE_NAME, value: curb-cut-api}
