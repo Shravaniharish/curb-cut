@@ -121,6 +121,8 @@ class AccessOut(Strict):
     interpreter: Literal["available", "unavailable", "unknown"]
     quiet_room_id: str | None
     quiet_room_walk_minutes: int | None
+    noise: Literal["high", "medium", "low", "unknown"] = "unknown"
+    crowd: Literal["high", "medium", "low", "unknown"] = "unknown"
 
 
 class TalkOut(Strict):
@@ -133,6 +135,7 @@ class TalkOut(Strict):
     topics: list[Topic]
     access: AccessOut
     backup_talk_ids: list[str]
+    description: str | None = None
     full: bool = False
 
 
