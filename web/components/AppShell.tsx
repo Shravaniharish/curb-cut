@@ -10,6 +10,7 @@ import type { Talk } from "@/lib/types";
 import { formatTime } from "@/lib/time";
 import { BottomNavigation } from "./BottomNavigation";
 import { ApiSync } from "./ApiSync";
+import { Rum } from "./Rum";
 import { ChangeWatcher } from "./ChangeWatcher";
 import { SecondaryButton } from "./ui";
 
@@ -94,6 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (!talks) return <p role="status" className="page">Loading the programme…</p>;
   return (
     <AppStateProvider talks={talks}>
+      <Rum />
       <Shell>{children}</Shell>
     </AppStateProvider>
   );
