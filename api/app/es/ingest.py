@@ -31,5 +31,6 @@ def ingest(reset: bool = False) -> dict[str, int]:
         }
         for n in NODES
     ]
-    ok, _ = bulk(es, actions, refresh="wait_for")
+    # Embeddings are generated while indexing, so the first load can take a while.
+    ok, _ = bulk(es.options(request_timeout=180), actions, chunk_size=10)
     return {"talks": len(TALKS), "venue": len(NODES), "indexed": ok}

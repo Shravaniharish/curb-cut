@@ -27,7 +27,7 @@ def client() -> Any | None:
         return None
     from elasticsearch import Elasticsearch
 
-    return Elasticsearch(settings.es_url, api_key=settings.es_api_key, request_timeout=5, max_retries=1)
+    return Elasticsearch(settings.es_url, api_key=settings.es_api_key, request_timeout=10, max_retries=1)
 
 
 def _semantic() -> dict[str, Any]:
