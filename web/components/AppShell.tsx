@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { AppStateProvider, useApp } from "@/lib/store";
 import { formatTime } from "@/lib/time";
 import { BottomNavigation } from "./BottomNavigation";
+import { ApiSync } from "./ApiSync";
 import { ChangeWatcher } from "./ChangeWatcher";
 import { SecondaryButton } from "./ui";
 
@@ -38,7 +39,12 @@ function NavGate() {
 /** The attendee's change alert never opens over the organizer or presenter screens. */
 function WatcherGate() {
   const pathname = usePathname();
-  return isStaffScreen(pathname) ? null : <ChangeWatcher />;
+  return isStaffScreen(pathname) ? null : (
+    <>
+      <ApiSync />
+      <ChangeWatcher />
+    </>
+  );
 }
 
 function Shell({ children }: { children: ReactNode }) {

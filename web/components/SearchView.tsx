@@ -5,6 +5,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { TalkCard } from "@/components/TalkCard";
 import { EmptyState, ErrorState, LoadingState, PageHeading, PrimaryButton, SecondaryButton } from "@/components/ui";
 import { WaitForState } from "@/components/WaitForState";
+import { LIVE } from "@/lib/api";
 import { ROUTES } from "@/lib/routes";
 import { createSearchAdapter, NO_MATCH_MESSAGE, searchTalks } from "@/lib/search/service";
 import { LocalSearchAdapter } from "@/lib/search/local";
@@ -19,7 +20,7 @@ function Search({ adapterOverride }: { adapterOverride?: TalkSearchAdapter }) {
   const uid = useId();
   const { talks, state, searchQuery, setSearchQuery } = useApp();
   const configured = useMemo(
-    () => adapterOverride ?? createSearchAdapter(process.env.NEXT_PUBLIC_SEARCH_BACKEND, process.env.NEXT_PUBLIC_API_URL),
+    () => adapterOverride ?? createSearchAdapter(LIVE ? "api" : process.env.NEXT_PUBLIC_SEARCH_BACKEND, process.env.NEXT_PUBLIC_API_URL),
     [adapterOverride],
   );
   const [adapter, setAdapter] = useState<TalkSearchAdapter>(configured);
@@ -83,7 +84,9 @@ function Search({ adapterOverride }: { adapterOverride?: TalkSearchAdapter }) {
       <p className="small muted" data-testid="search-mode">
         {adapter.backend === "elasticsearch"
           ? "Search mode: Elasticsearch. Only your words are sent; your needs are applied on this device."
-          : "Search mode: demo search over sample talks on this device. Elasticsearch is not connected."}
+          : adapter.backend === "api"
+            ? "Search mode: Curb Cut service (keyword search, not Elasticsearch yet). Only your words are sent; your needs are applied on this device."
+            : "Search mode: demo search over sample talks on this device. Elasticsearch is not connected."}
       </p>
 
       <div aria-live="polite" role="status" className="sr-only">

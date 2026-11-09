@@ -118,6 +118,7 @@ const CHANGE_KINDS: ChangeKind[] = [
   "elevator_down",
   "elevator_fixed",
   "path_blocked",
+  "path_cleared",
   "room_full",
   "talk_moved",
   "running_late",

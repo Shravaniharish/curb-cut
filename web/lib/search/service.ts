@@ -29,5 +29,6 @@ export async function searchTalks(adapter: TalkSearchAdapter, req: SearchRequest
 /** Choose the adapter from configuration. Defaults to the demo adapter and says so in the UI. */
 export function createSearchAdapter(backend: SearchBackend | string | undefined, apiBase: string | undefined): TalkSearchAdapter {
   if (backend === "elasticsearch" && apiBase) return new ElasticsearchSearchAdapter(apiBase);
+  if (backend === "api" && apiBase) return new ElasticsearchSearchAdapter(apiBase, undefined, "api");
   return new LocalSearchAdapter();
 }
