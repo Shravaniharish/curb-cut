@@ -10,8 +10,8 @@ import { buildAgenda } from "./agenda";
 import type { AgendaResult } from "./agenda";
 import { DEMO_TALKS } from "./fixtures/talks";
 import { createDemoVenue } from "./fixtures/venue";
-import { ALERT_HISTORY_LIMIT, REPORT_HISTORY_LIMIT, defaultState } from "./preferences";
-import { clearAllCurbCutData, loadSearchQuery, loadState, saveSearchQuery, saveState } from "./storage";
+import { ALERT_HISTORY_LIMIT, REPORT_HISTORY_LIMIT, defaultState, sanitizeState } from "./preferences";
+import { STATE_KEY, clearAllCurbCutData, loadSearchQuery, loadState, saveSearchQuery, saveState } from "./storage";
 import { clockNowIso } from "./time";
 import { withSpan } from "./telemetry";
 import type {
@@ -82,7 +82,7 @@ export function useApp(): AppContextValue {
 const TICK_MS = 5000;
 
 /** Random id for a locally stored record. It identifies the record, never the person. */
-function newId(): string {
+export function newId(): string {
   const c = typeof crypto !== "undefined" ? crypto : undefined;
   if (c?.randomUUID) return c.randomUUID();
   if (c?.getRandomValues) return Array.from(c.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, "0")).join("");
@@ -107,6 +107,8 @@ export function AppStateProvider({ children, talks = DEMO_TALKS }: { children: R
   const [reminderNotice, setReminderNotice] = useState<ReminderNotice | null>(null);
   // Nothing is written to storage until the attendee changes something, and a reset leaves no keys behind.
   const dirtyRef = useRef(false);
+  // Set when the state was just adopted from another tab, so it is not written straight back.
+  const fromOtherTabRef = useRef(false);
   const patch = useCallback((change: (s: PersistedState) => PersistedState) => {
     dirtyRef.current = true;
     setState((s) => change(s));
@@ -122,8 +124,29 @@ export function AppStateProvider({ children, talks = DEMO_TALKS }: { children: R
     setReady(true);
   }, []);
 
+  // Part C: another tab (the organizer dashboard in the demo) changed the shared state. Adopt it, so a change
+  // announced there reaches the attendee's tab and Part B's ChangeWatcher raises the alert.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== STATE_KEY || !e.newValue) return;
+      try {
+        const incoming = sanitizeState(JSON.parse(e.newValue));
+        fromOtherTabRef.current = true;
+        setState(incoming);
+      } catch {
+        // corrupt JSON from another tab: keep what we have
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
   // Save on every change after the first read.
   useEffect(() => {
+    if (fromOtherTabRef.current) {
+      fromOtherTabRef.current = false;
+      return;
+    }
     if (!ready || !dirtyRef.current) return;
     setStorageOk(saveState(state));
   }, [ready, state]);

@@ -258,3 +258,27 @@ export interface PersistedState {
   /** Part B: when the Alerts tab was last opened, so "while you were away" can count what is new. */
   alertsSeenAt: string | null;
 }
+
+// ---- Session companion, presenter console (Part C) ---------------------------------------------------------
+
+/** One line of a canned demo transcript. `offsetSec` is seconds after the talk's start. */
+export interface TranscriptChunk {
+  talkId: string;
+  offsetSec: number;
+  speaker: string;
+  text: string;
+}
+
+/**
+ * A written question sent from the session companion to the presenter. It carries no attendee id: it is venue
+ * content, like a card passed to the stage.
+ */
+export interface WrittenQuestion {
+  id: string;
+  talkId: string;
+  text: string;
+  /** UTC instant from the app clock. */
+  askedAt: string;
+  /** UTC instant the presenter read it out, or null while it waits in the queue. */
+  readOutAt: string | null;
+}

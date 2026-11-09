@@ -640,3 +640,73 @@ ol.steps li {
     border-top-color: Highlight;
   }
 }
+
+/* Part C: session companion */
+.transcript {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+.transcript li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.transcript-question {
+  background: var(--changed-bg);
+  border-left: 4px solid var(--changed);
+  padding-left: 0.75rem !important;
+}
+.catch-up {
+  padding-left: 1.25rem;
+}
+.catch-up li {
+  margin-bottom: 0.75rem;
+}
+textarea {
+  width: 100%;
+  font: inherit;
+  padding: 0.5rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+/* Part C: laptop screens for the access team and the speaker */
+.page:has(.staff-screen) {
+  max-width: 90rem;
+}
+.dashboard-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 64rem) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 1.2fr 1fr;
+    align-items: start;
+  }
+}
+.plain-list {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: grid;
+  gap: 0.375rem;
+}
+.big-result {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.presenter {
+  font-size: 1.5rem;
+}
+.presenter-status {
+  font-weight: 700;
+}
+.presenter-question p:first-child {
+  font-size: 1.75rem;
+}

@@ -26,10 +26,19 @@ function ReminderBanner() {
   );
 }
 
-/** Navigation is hidden on the welcome and setup screens. Separate so the pathname read can sit inside Suspense. */
+/** Part C laptop screens for the access team and the speaker. They are not the attendee's phone. */
+const isStaffScreen = (pathname: string) => pathname.startsWith("/organizer") || pathname.startsWith("/presenter");
+
+/** Navigation is hidden on the welcome, setup and staff screens. Separate so the pathname read can sit inside Suspense. */
 function NavGate() {
   const pathname = usePathname();
-  return pathname === "/" || pathname.startsWith("/setup") ? null : <BottomNavigation />;
+  return pathname === "/" || pathname.startsWith("/setup") || isStaffScreen(pathname) ? null : <BottomNavigation />;
+}
+
+/** The attendee's change alert never opens over the organizer or presenter screens. */
+function WatcherGate() {
+  const pathname = usePathname();
+  return isStaffScreen(pathname) ? null : <ChangeWatcher />;
 }
 
 function Shell({ children }: { children: ReactNode }) {
@@ -46,8 +55,8 @@ function Shell({ children }: { children: ReactNode }) {
         {children}
       </main>
       {/* Part B: an event change opens the alert over whatever screen the attendee is on. */}
-      <ChangeWatcher />
       <Suspense fallback={null}>
+        <WatcherGate />
         <NavGate />
       </Suspense>
     </div>

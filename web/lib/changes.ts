@@ -74,6 +74,15 @@ export function elevatorsUsed(route: Extract<RouteResult, { ok: true }>, graph: 
   return out;
 }
 
+/** Does the route to the attendee's next talk ride this elevator? Pass the graph from before a change to ask "was it on my route?". */
+export function routeUsedElevator(ctx: PlanContext, elevatorId: ElevatorId): boolean {
+  const talk = talkInFocus(ctx);
+  if (!talk) return false;
+  const route = routeTo(ctx, talk.roomId);
+  if (!route.ok) return false;
+  return elevatorsUsed(route, ctx.graph).includes(elevatorId);
+}
+
 export function leaveByFor(route: Extract<RouteResult, { ok: true }>, talk: Talk, prefs: AttendeePreferences): string {
   return addMinutes(talk.start, -(route.minutes + bufferMinutes(prefs)));
 }
