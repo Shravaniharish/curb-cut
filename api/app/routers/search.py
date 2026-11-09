@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends
 
 from app.data.talks import Talk
 from app.deps import get_store
+from app.es.search import hybrid_search
 from app.schemas import SearchHit, SearchRequest, SearchResponse
 from app.services.store import Store
 from app.telemetry import span
@@ -64,6 +65,11 @@ def score_talk(talk: Talk, tokens: list[str]) -> SearchHit | None:
 @router.post("/search", response_model=SearchResponse)
 def search(body: SearchRequest, store: Store = Depends(get_store)) -> SearchResponse:
     tokens = tokenize(body.q)
+    es_hits = hybrid_search(body.q)
+    if es_hits is not None:
+        known = {t.id for t in store.talks()}
+        with span("search", token_count=len(tokens), hit_count=len(es_hits), elasticsearch=True):
+            return SearchResponse(hits=[h for h in es_hits if h.id in known], backend="elasticsearch")
     hits = [h for t in store.talks() if (h := score_talk(t, tokens))] if tokens else []
     hits.sort(key=lambda h: (-h.score, h.id))
     with span("search", token_count=len(tokens), hit_count=len(hits)):

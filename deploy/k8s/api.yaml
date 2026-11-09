@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curb-cut-api
+  labels: {app: curb-cut-api}
+spec:
+  # One replica on purpose: venue state and SSE subscribers live in memory (see docs/BACKEND.md).
+  replicas: 1
+  selector:
+    matchLabels: {app: curb-cut-api}
+  template:
+    metadata:
+      labels: {app: curb-cut-api}
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/shravaniharish/curb-cut-api:latest
+          ports: [{containerPort: 8000}]
+          env:
+            - {name: OTEL_SERVICE_NAME, value: curb-cut-api}
+            - {name: CORS_ORIGINS, value: "https://curbcut.example.com"}
+          # ES_URL, ES_API_KEY, ORGANIZER_KEY, OTEL_EXPORTER_OTLP_ENDPOINT and OTEL_EXPORTER_OTLP_HEADERS come from
+          # the Secret created by hand (never committed). See deploy/README.md.
+          envFrom:
+            - secretRef: {name: curb-cut-secrets, optional: true}
+          readinessProbe: {httpGet: {path: /healthz, port: 8000}, periodSeconds: 5}
+          livenessProbe: {httpGet: {path: /healthz, port: 8000}, periodSeconds: 20}
+          resources:
+            requests: {cpu: 100m, memory: 192Mi}
+            limits: {memory: 512Mi}
+          securityContext: {runAsNonRoot: true, allowPrivilegeEscalation: false}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: curb-cut-api
+spec:
+  selector: {app: curb-cut-api}
+  ports: [{port: 80, targetPort: 8000}]

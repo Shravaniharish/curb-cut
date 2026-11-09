@@ -5,8 +5,10 @@ Times are the conference's local time (America/Denver), Monday 9 November 2026.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 CONFERENCE_TZ = ZoneInfo("America/Denver")
@@ -76,4 +78,25 @@ TALKS: list[Talk] = [
         "Open written and spoken questions on supply chain security. Written questions are taken first.",
     ),
 ]
+
+
+def _load_generated() -> list[Talk]:
+    """The synthetic programme from ``data/generate.py``. Missing file means demo talks only."""
+    path = Path(__file__).with_name("talks_generated.json")
+    if not path.exists():
+        return []
+    out = []
+    for r in json.loads(path.read_text()):
+        hh, mm = (int(x) for x in r["start"].split(":"))
+        eh, em = (int(x) for x in r["end"].split(":"))
+        out.append(
+            Talk(
+                r["id"], r["title"], at(hh, mm), at(eh, em), r["room_id"], r["floor"], tuple(r["topics"]),
+                Access(**r["access"]), tuple(r["backup_talk_ids"]), r["abstract"],
+            )
+        )  # fmt: skip
+    return out
+
+
+TALKS += _load_generated()
 TALK_BY_ID = {t.id: t for t in TALKS}

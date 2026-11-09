@@ -1,12 +1,16 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { LIVE, getTalks } from "@/lib/api";
+import { DEMO_TALKS } from "@/lib/fixtures/talks";
 import { AppStateProvider, useApp } from "@/lib/store";
+import type { Talk } from "@/lib/types";
 import { formatTime } from "@/lib/time";
 import { BottomNavigation } from "./BottomNavigation";
 import { ApiSync } from "./ApiSync";
+import { Rum } from "./Rum";
 import { ChangeWatcher } from "./ChangeWatcher";
 import { SecondaryButton } from "./ui";
 
@@ -69,9 +73,29 @@ function Shell({ children }: { children: ReactNode }) {
   );
 }
 
+/** Live mode: the programme comes from the API. If it cannot be reached the four demo talks are used instead. */
+function useProgramme(): Talk[] | null {
+  const [talks, setTalks] = useState<Talk[] | null>(LIVE ? null : DEMO_TALKS);
+  useEffect(() => {
+    if (!LIVE) return;
+    let stopped = false;
+    getTalks().then(
+      (t) => !stopped && setTalks(t.length > 0 ? t : DEMO_TALKS),
+      () => !stopped && setTalks(DEMO_TALKS),
+    );
+    return () => {
+      stopped = true;
+    };
+  }, []);
+  return talks;
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
+  const talks = useProgramme();
+  if (!talks) return <p role="status" className="page">Loading the programme…</p>;
   return (
-    <AppStateProvider>
+    <AppStateProvider talks={talks}>
+      <Rum />
       <Shell>{children}</Shell>
     </AppStateProvider>
   );

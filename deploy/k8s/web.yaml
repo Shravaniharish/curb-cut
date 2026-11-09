@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curb-cut-web
+  labels: {app: curb-cut-web}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: curb-cut-web}
+  template:
+    metadata:
+      labels: {app: curb-cut-web}
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/shravaniharish/curb-cut-web:latest
+          ports: [{containerPort: 3000}]
+          readinessProbe: {httpGet: {path: /, port: 3000}, periodSeconds: 5}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {memory: 384Mi}
+          securityContext: {runAsNonRoot: true, allowPrivilegeEscalation: false}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: curb-cut-web
+spec:
+  selector: {app: curb-cut-web}
+  ports: [{port: 80, targetPort: 3000}]

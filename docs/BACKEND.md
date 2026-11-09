@@ -43,3 +43,12 @@ The profile is a request body only. No table, log line or span attribute holds i
 - Organizer routes are open unless `ORGANIZER_KEY` is set. That is fine locally and not for a public deployment.
 - The browser holds the SSE connection to the API directly, so a reverse proxy must not buffer `/api/changes/stream`.
 - `api/pyproject.toml`: line length 120, `fastapi.Depends/Query/Header` allowed as defaults, `E501` off for `app/data/`.
+
+## Elasticsearch, data and deploy (added)
+- `data/generate.py` writes the 26 synthetic talks to `api/app/data/talks_generated.json`; with the 4 demo talks that is 30.
+- `app/es/`: client (off without `ES_URL` + `ES_API_KEY`), index mappings, ingest, and hybrid search (BM25 + Jina `semantic_text`,
+  reciprocal rank fusion). Any Elasticsearch failure falls back to the local keyword search; `SearchResponse.backend` says which ran.
+- Public reports and changes are mirrored to the `reports` and `changes` indices on a best-effort basis. Query text and profiles
+  are never sent anywhere.
+- Web live mode loads the programme from `GET /api/talks`.
+- Deploy and Dash0 steps: `deploy/README.md`.

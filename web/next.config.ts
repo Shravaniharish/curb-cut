@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Small self-contained server for the container image.
+  output: "standalone",
   cacheComponents: true,
   partialPrefetching: true,
 };

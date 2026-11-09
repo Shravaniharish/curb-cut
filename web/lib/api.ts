@@ -16,7 +16,9 @@ import type {
   ChangeKind,
   ElevatorId,
   ElevatorStatus,
+  Level,
   ReportProblem,
+  Talk,
   WrittenQuestion,
 } from "./types";
 
@@ -170,6 +172,63 @@ export const replanPersonal = (
 export const ackChange = (changeId: string, affected: boolean, replanMs: number) =>
   post<void>(`/api/changes/${encodeURIComponent(changeId)}/ack`, { affected, replan_ms: Math.max(0, Math.round(replanMs)) });
 
+export interface ApiTalk {
+  id: string;
+  title: string;
+  description: string | null;
+  start: string;
+  end: string;
+  room_id: string;
+  floor: number;
+  topics: Talk["topics"];
+  backup_talk_ids: string[];
+  access: {
+    step_free_entrance: Talk["access"]["stepFreeEntrance"];
+    captions: Talk["access"]["captions"];
+    slide_descriptions: Talk["access"]["slideDescriptions"];
+    front_seating: Talk["access"]["frontSeating"];
+    interpreter: Talk["access"]["interpreter"];
+    quiet_room_id: string | null;
+    quiet_room_walk_minutes: number | null;
+    noise: Level;
+    crowd: Level;
+  };
+}
+
+/** The API programme as the app's own Talk shape. The programme is public, synthetic data. */
+export function talkFromApi(t: ApiTalk): Talk {
+  const a = t.access;
+  return {
+    id: t.id,
+    title: t.title,
+    speaker: null,
+    description: t.description,
+    start: t.start,
+    end: t.end,
+    roomId: t.room_id,
+    floor: t.floor,
+    topics: t.topics,
+    access: {
+      stepFreeEntrance: a.step_free_entrance,
+      captions: a.captions,
+      slideDescriptions: a.slide_descriptions,
+      frontSeating: a.front_seating,
+      quietRoom:
+        a.quiet_room_id && a.quiet_room_walk_minutes != null
+          ? { status: "known", roomId: a.quiet_room_id, walkMinutes: a.quiet_room_walk_minutes }
+          : { status: "unknown" },
+      interpreter: a.interpreter,
+      slidesAheadHours: null,
+      sensory: { noise: a.noise, crowd: a.crowd, lighting: "unknown" },
+    },
+    sensoryNotes: { text: null, provenance: "elasticsearch" },
+    backupTalkIds: t.backup_talk_ids,
+    provenance: { kind: "elasticsearch", source: "Curb Cut API (synthetic programme)", sampleFields: [] },
+    lastUpdated: null,
+  };
+}
+
+export const getTalks = async () => (await apiFetch<ApiTalk[]>("/api/talks")).map(talkFromApi);
 export const getVenue = () => apiFetch<ApiVenue>("/api/venue");
 export const getSummary = () => apiFetch<ApiSummary>("/api/organizer/summary");
 export const announceChange = (type: ApiChange["type"], target: string, details: Record<string, string> = {}) =>

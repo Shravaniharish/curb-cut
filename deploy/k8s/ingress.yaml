@@ -1,0 +1,17 @@
+# Edit the host to the one Radar gives you. The API is served from the same host under /api so the browser sees one
+# origin; /api/changes/stream is a long-lived SSE connection, so buffering is off and the read timeout is long.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: curb-cut
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+spec:
+  rules:
+    - host: curbcut.example.com
+      http:
+        paths:
+          - {path: /api, pathType: Prefix, backend: {service: {name: curb-cut-api, port: {number: 80}}}}
+          - {path: /healthz, pathType: Exact, backend: {service: {name: curb-cut-api, port: {number: 80}}}}
+          - {path: /, pathType: Prefix, backend: {service: {name: curb-cut-web, port: {number: 80}}}}

@@ -27,8 +27,9 @@ def talk_out(t: Talk) -> TalkOut:
             step_free_entrance=a.step_free_entrance, captions=a.captions,
             slide_descriptions=a.slide_descriptions, front_seating=a.front_seating,
             interpreter=a.interpreter, quiet_room_id=a.quiet_room_id,
-            quiet_room_walk_minutes=a.quiet_room_walk_minutes,
+            quiet_room_walk_minutes=a.quiet_room_walk_minutes, noise=a.noise, crowd=a.crowd,
         ),
+        description=t.abstract or None,
     )  # fmt: skip
 
 

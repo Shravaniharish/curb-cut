@@ -1,0 +1,40 @@
+{
+  "tools": [
+    {
+      "id": "curbcut.open_changes",
+      "type": "esql",
+      "description": "Venue changes announced today that are not fixed yet (elevator down, path blocked, room full).",
+      "configuration": {
+        "query": "FROM changes | WHERE fixed_at IS NULL | SORT created_at DESC | KEEP type, target, created_at | LIMIT 20",
+        "params": {}
+      }
+    },
+    {
+      "id": "curbcut.report_counts",
+      "type": "esql",
+      "description": "Attendee reports of problems in the last hour, grouped by problem and place, with how many different devices reported.",
+      "configuration": {
+        "query": "FROM reports | WHERE created_at > NOW() - 1 hour | STATS reports = COUNT(*), devices = COUNT_DISTINCT(device_token) BY problem, location_id | SORT devices DESC | LIMIT 20",
+        "params": {}
+      }
+    },
+    {
+      "id": "curbcut.find_talks",
+      "type": "esql",
+      "description": "Find talks by meaning. Use the query parameter for the attendee's words.",
+      "configuration": {
+        "query": "FROM talks METADATA _score | WHERE MATCH(semantic, ?query) | SORT _score DESC | KEEP id, title, room_id, start, topics | LIMIT 5",
+        "params": {"query": {"type": "string", "description": "What the attendee is looking for"}}
+      }
+    }
+  ],
+  "agent": {
+    "id": "curbcut-organizer-assistant",
+    "name": "Curb Cut organizer assistant",
+    "description": "Helps organizers see which venue changes are open and which attendee reports need action.",
+    "configuration": {
+      "instructions": "You help conference organizers. Use only public venue data: changes, reports and talks. You never have attendee profiles or needs and must never ask for them. When reports from 2 or more devices agree on a problem, say the organizer should announce it, using the Curb Cut dashboard (the API's /api/changes endpoint holds the real re-planning, which is the source of truth). Keep answers short, in plain words.",
+      "tools": [{"tool_ids": ["curbcut.open_changes", "curbcut.report_counts", "curbcut.find_talks"]}]
+    }
+  }
+}

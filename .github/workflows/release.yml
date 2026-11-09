@@ -1,0 +1,62 @@
+name: Release
+# Builds both images on every merge to main and pushes them to GHCR. Argo CD (deploy/argocd) syncs deploy/k8s.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: ${{ github.repository_owner }}
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: curb-cut-api
+            context: api
+          - name: curb-cut-web
+            context: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          # Public values compiled into the browser bundle. Set these repository variables for the live demo.
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_API_MODE=${{ vars.NEXT_PUBLIC_API_MODE }}
+            NEXT_PUBLIC_OTEL_EXPORTER_URL=${{ vars.NEXT_PUBLIC_OTEL_EXPORTER_URL }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.name }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.name }}:latest
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+
+  bump:
+    # Pins the manifests to this commit's images so Argo CD rolls them out (GitOps: git is the source of truth).
+    needs: images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          cd deploy/k8s
+          sed -i "s|ghcr.io/[a-z0-9-]*/curb-cut-api:[A-Za-z0-9._-]*|ghcr.io/${OWNER}/curb-cut-api:${GITHUB_SHA}|" api.yaml
+          sed -i "s|ghcr.io/[a-z0-9-]*/curb-cut-web:[A-Za-z0-9._-]*|ghcr.io/${OWNER}/curb-cut-web:${GITHUB_SHA}|" web.yaml
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git diff --quiet || (git commit -am "deploy: pin images to ${GITHUB_SHA::7} [skip ci]" && git push)

@@ -1,0 +1,662 @@
+[
+  {
+    "id": "talk-g01",
+    "title": "Running small models near your data",
+    "abstract": "Practical notes on serving a small language model inside a cluster.",
+    "start": "13:30",
+    "end": "13:55",
+    "room_id": "room-355",
+    "floor": 3,
+    "topics": [
+      "AI",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "unknown",
+      "captions": "none",
+      "slide_descriptions": "unknown",
+      "front_seating": "unavailable",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-3",
+      "quiet_room_walk_minutes": 2,
+      "noise": "high",
+      "crowd": "high"
+    },
+    "backup_talk_ids": [
+      "talk-g04"
+    ]
+  },
+  {
+    "id": "talk-g02",
+    "title": "Upgrading clusters without drama",
+    "abstract": "A boring checklist for version upgrades, with rollback built in.",
+    "start": "14:30",
+    "end": "14:55",
+    "room_id": "room-251",
+    "floor": 2,
+    "topics": [
+      "Platform engineering"
+    ],
+    "access": {
+      "step_free_entrance": "unknown",
+      "captions": "none",
+      "slide_descriptions": "ai_draft",
+      "front_seating": "unknown",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-2",
+      "quiet_room_walk_minutes": 2,
+      "noise": "low",
+      "crowd": "low"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g03",
+    "title": "Reading a flame graph",
+    "abstract": "Find the slow part of a program by looking at one picture.",
+    "start": "16:00",
+    "end": "16:25",
+    "room_id": "room-355",
+    "floor": 3,
+    "topics": [
+      "Observability",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "unknown",
+      "captions": "live_captioner",
+      "slide_descriptions": "unknown",
+      "front_seating": "available",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-3",
+      "quiet_room_walk_minutes": 2,
+      "noise": "low",
+      "crowd": "medium"
+    },
+    "backup_talk_ids": [
+      "talk-g09"
+    ]
+  },
+  {
+    "id": "talk-g04",
+    "title": "Following one request across ten services",
+    "abstract": "Tracing explained with a single slow checkout from start to finish.",
+    "start": "13:30",
+    "end": "13:55",
+    "room_id": "ballroom-e",
+    "floor": 1,
+    "topics": [
+      "Observability",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "live_captioner",
+      "slide_descriptions": "none",
+      "front_seating": "available",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-1",
+      "quiet_room_walk_minutes": 3,
+      "noise": "high",
+      "crowd": "medium"
+    },
+    "backup_talk_ids": [
+      "talk-g01"
+    ]
+  },
+  {
+    "id": "talk-g05",
+    "title": "Least privilege, one role at a time",
+    "abstract": "Trim a broad role down to what is needed, and prove nothing broke.",
+    "start": "11:00",
+    "end": "11:25",
+    "room_id": "room-251",
+    "floor": 2,
+    "topics": [
+      "Security"
+    ],
+    "access": {
+      "step_free_entrance": "unknown",
+      "captions": "none",
+      "slide_descriptions": "ai_draft",
+      "front_seating": "available",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-2",
+      "quiet_room_walk_minutes": 2,
+      "noise": "high",
+      "crowd": "medium"
+    },
+    "backup_talk_ids": [
+      "talk-g25"
+    ]
+  },
+  {
+    "id": "talk-g06",
+    "title": "Logs you can search at 3 AM",
+    "abstract": "Structured logging habits that make an outage shorter.",
+    "start": "11:00",
+    "end": "11:25",
+    "room_id": "room-355",
+    "floor": 3,
+    "topics": [
+      "Observability"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "none",
+      "slide_descriptions": "ai_draft",
+      "front_seating": "available",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-3",
+      "quiet_room_walk_minutes": 2,
+      "noise": "high",
+      "crowd": "high"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g07",
+    "title": "Guardrails for helpful assistants",
+    "abstract": "Limit what an assistant can touch and show people what it did.",
+    "start": "15:30",
+    "end": "15:55",
+    "room_id": "room-355",
+    "floor": 3,
+    "topics": [
+      "AI"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "automatic",
+      "slide_descriptions": "none",
+      "front_seating": "available",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-3",
+      "quiet_room_walk_minutes": 2,
+      "noise": "medium",
+      "crowd": "low"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g08",
+    "title": "Debugging a stuck connection",
+    "abstract": "A step-by-step method for finding where a packet stops.",
+    "start": "11:30",
+    "end": "11:55",
+    "room_id": "room-251",
+    "floor": 2,
+    "topics": [
+      "Networking",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "none",
+      "slide_descriptions": "ai_draft",
+      "front_seating": "available",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-2",
+      "quiet_room_walk_minutes": 2,
+      "noise": "medium",
+      "crowd": "low"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g09",
+    "title": "Secrets that stay secret",
+    "abstract": "Where credentials leak in a cluster and the small habits that stop it.",
+    "start": "16:00",
+    "end": "16:25",
+    "room_id": "ballroom-e",
+    "floor": 1,
+    "topics": [
+      "Security",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "unknown",
+      "captions": "live_captioner",
+      "slide_descriptions": "none",
+      "front_seating": "unknown",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-1",
+      "quiet_room_walk_minutes": 3,
+      "noise": "high",
+      "crowd": "low"
+    },
+    "backup_talk_ids": [
+      "talk-g03"
+    ]
+  },
+  {
+    "id": "talk-g10",
+    "title": "Testing prompts like code",
+    "abstract": "Version, test and review prompts the way a team reviews a pull request.",
+    "start": "12:00",
+    "end": "12:25",
+    "room_id": "room-355",
+    "floor": 3,
+    "topics": [
+      "AI"
+    ],
+    "access": {
+      "step_free_entrance": "unavailable",
+      "captions": "automatic",
+      "slide_descriptions": "none",
+      "front_seating": "available",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-3",
+      "quiet_room_walk_minutes": 2,
+      "noise": "medium",
+      "crowd": "low"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g11",
+    "title": "Docs as a product",
+    "abstract": "Treat internal documentation like a product with users, feedback and owners.",
+    "start": "16:00",
+    "end": "16:25",
+    "room_id": "room-251",
+    "floor": 2,
+    "topics": [
+      "Platform engineering"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "none",
+      "slide_descriptions": "unknown",
+      "front_seating": "unknown",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-2",
+      "quiet_room_walk_minutes": 2,
+      "noise": "high",
+      "crowd": "high"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g12",
+    "title": "Dashboards that answer one question",
+    "abstract": "Design a dashboard around a question, not a pile of graphs.",
+    "start": "13:00",
+    "end": "13:25",
+    "room_id": "room-251",
+    "floor": 2,
+    "topics": [
+      "Observability",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "unavailable",
+      "captions": "live_captioner",
+      "slide_descriptions": "none",
+      "front_seating": "unknown",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-2",
+      "quiet_room_walk_minutes": 2,
+      "noise": "high",
+      "crowd": "medium"
+    },
+    "backup_talk_ids": [
+      "talk-g18"
+    ]
+  },
+  {
+    "id": "talk-g13",
+    "title": "Network policy for humans",
+    "abstract": "Draw the allowed conversations first, then write the rules. One diagram, no jargon.",
+    "start": "13:30",
+    "end": "13:55",
+    "room_id": "room-251",
+    "floor": 2,
+    "topics": [
+      "Security"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "none",
+      "slide_descriptions": "verified",
+      "front_seating": "unavailable",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-2",
+      "quiet_room_walk_minutes": 2,
+      "noise": "medium",
+      "crowd": "low"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g14",
+    "title": "Scheduling with constraints",
+    "abstract": "Taints, affinities and requests explained with a seating-plan analogy.",
+    "start": "12:30",
+    "end": "12:55",
+    "room_id": "ballroom-e",
+    "floor": 1,
+    "topics": [
+      "Platform engineering",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "unknown",
+      "captions": "live_captioner",
+      "slide_descriptions": "none",
+      "front_seating": "available",
+      "interpreter": "available",
+      "quiet_room_id": "quiet-room-1",
+      "quiet_room_walk_minutes": 3,
+      "noise": "medium",
+      "crowd": "high"
+    },
+    "backup_talk_ids": [
+      "talk-g15"
+    ]
+  },
+  {
+    "id": "talk-g15",
+    "title": "Evaluating answers that sound right",
+    "abstract": "Simple checks that catch confident but wrong answers.",
+    "start": "12:30",
+    "end": "12:55",
+    "room_id": "room-355",
+    "floor": 3,
+    "topics": [
+      "AI",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "live_captioner",
+      "slide_descriptions": "none",
+      "front_seating": "unknown",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-3",
+      "quiet_room_walk_minutes": 2,
+      "noise": "low",
+      "crowd": "medium"
+    },
+    "backup_talk_ids": [
+      "talk-g14"
+    ]
+  },
+  {
+    "id": "talk-g16",
+    "title": "Service mesh, with and without",
+    "abstract": "What a mesh gives you, what it costs, and when plain networking is enough.",
+    "start": "12:30",
+    "end": "12:55",
+    "room_id": "room-251",
+    "floor": 2,
+    "topics": [
+      "Networking",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "none",
+      "slide_descriptions": "verified",
+      "front_seating": "unavailable",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-2",
+      "quiet_room_walk_minutes": 2,
+      "noise": "medium",
+      "crowd": "low"
+    },
+    "backup_talk_ids": [
+      "talk-g14"
+    ]
+  },
+  {
+    "id": "talk-g17",
+    "title": "Reading a vulnerability report without panic",
+    "abstract": "How to rank findings by what can actually be reached, and what to fix first.",
+    "start": "11:30",
+    "end": "11:55",
+    "room_id": "room-355",
+    "floor": 3,
+    "topics": [
+      "Security"
+    ],
+    "access": {
+      "step_free_entrance": "unavailable",
+      "captions": "automatic",
+      "slide_descriptions": "ai_draft",
+      "front_seating": "unknown",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-3",
+      "quiet_room_walk_minutes": 2,
+      "noise": "medium",
+      "crowd": "high"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g18",
+    "title": "Beginner's guide to SLOs",
+    "abstract": "Pick one number that says if users are happy, and use it to decide what to do next.",
+    "start": "13:00",
+    "end": "13:25",
+    "room_id": "ballroom-e",
+    "floor": 1,
+    "topics": [
+      "Observability"
+    ],
+    "access": {
+      "step_free_entrance": "unavailable",
+      "captions": "automatic",
+      "slide_descriptions": "verified",
+      "front_seating": "available",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-1",
+      "quiet_room_walk_minutes": 3,
+      "noise": "medium",
+      "crowd": "low"
+    },
+    "backup_talk_ids": [
+      "talk-g12"
+    ]
+  },
+  {
+    "id": "talk-g19",
+    "title": "Cost you can explain",
+    "abstract": "Tag, measure and explain cluster spend to people who do not run clusters.",
+    "start": "14:00",
+    "end": "14:25",
+    "room_id": "room-251",
+    "floor": 2,
+    "topics": [
+      "Platform engineering",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "live_captioner",
+      "slide_descriptions": "verified",
+      "front_seating": "unavailable",
+      "interpreter": "available",
+      "quiet_room_id": "quiet-room-2",
+      "quiet_room_walk_minutes": 2,
+      "noise": "high",
+      "crowd": "low"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g20",
+    "title": "How traffic really gets in",
+    "abstract": "Ingress, gateways and load balancers in one clear picture.",
+    "start": "15:00",
+    "end": "15:25",
+    "room_id": "room-355",
+    "floor": 3,
+    "topics": [
+      "Networking"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "live_captioner",
+      "slide_descriptions": "unknown",
+      "front_seating": "available",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-3",
+      "quiet_room_walk_minutes": 2,
+      "noise": "low",
+      "crowd": "medium"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g21",
+    "title": "Incident drills that do not hurt",
+    "abstract": "Run a calm practice incident with a clear script and a kind debrief.",
+    "start": "12:00",
+    "end": "12:25",
+    "room_id": "ballroom-e",
+    "floor": 1,
+    "topics": [
+      "Security"
+    ],
+    "access": {
+      "step_free_entrance": "unknown",
+      "captions": "live_captioner",
+      "slide_descriptions": "ai_draft",
+      "front_seating": "unknown",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-1",
+      "quiet_room_walk_minutes": 3,
+      "noise": "medium",
+      "crowd": "high"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g22",
+    "title": "GitOps in a small team",
+    "abstract": "Keep the cluster state in git without adding a second job for everyone.",
+    "start": "15:30",
+    "end": "15:55",
+    "room_id": "ballroom-e",
+    "floor": 1,
+    "topics": [
+      "Platform engineering",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "none",
+      "slide_descriptions": "none",
+      "front_seating": "available",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-1",
+      "quiet_room_walk_minutes": 3,
+      "noise": "high",
+      "crowd": "medium"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g23",
+    "title": "A paved road for new services",
+    "abstract": "Give teams a default path that is safe, quick and easy to leave when needed.",
+    "start": "11:30",
+    "end": "11:55",
+    "room_id": "ballroom-e",
+    "floor": 1,
+    "topics": [
+      "Platform engineering"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "automatic",
+      "slide_descriptions": "ai_draft",
+      "front_seating": "unavailable",
+      "interpreter": "unavailable",
+      "quiet_room_id": "quiet-room-1",
+      "quiet_room_walk_minutes": 3,
+      "noise": "medium",
+      "crowd": "low"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g24",
+    "title": "DNS is the answer",
+    "abstract": "Why so many outages are DNS, and how to see it coming.",
+    "start": "12:00",
+    "end": "12:25",
+    "room_id": "room-251",
+    "floor": 2,
+    "topics": [
+      "Networking",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "automatic",
+      "slide_descriptions": "none",
+      "front_seating": "unavailable",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-2",
+      "quiet_room_walk_minutes": 2,
+      "noise": "medium",
+      "crowd": "medium"
+    },
+    "backup_talk_ids": []
+  },
+  {
+    "id": "talk-g25",
+    "title": "Signing images the easy way",
+    "abstract": "A walk through signing and verifying container images, with the three mistakes teams make.",
+    "start": "11:00",
+    "end": "11:25",
+    "room_id": "ballroom-e",
+    "floor": 1,
+    "topics": [
+      "Security",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "unknown",
+      "captions": "automatic",
+      "slide_descriptions": "none",
+      "front_seating": "available",
+      "interpreter": "unknown",
+      "quiet_room_id": "quiet-room-1",
+      "quiet_room_walk_minutes": 3,
+      "noise": "low",
+      "crowd": "medium"
+    },
+    "backup_talk_ids": [
+      "talk-g05"
+    ]
+  },
+  {
+    "id": "talk-g26",
+    "title": "Alerts people can sleep through",
+    "abstract": "Cut noisy alerts down to the few that need a person, using service level goals.",
+    "start": "15:00",
+    "end": "15:25",
+    "room_id": "ballroom-e",
+    "floor": 1,
+    "topics": [
+      "Observability",
+      "Beginner-friendly"
+    ],
+    "access": {
+      "step_free_entrance": "confirmed",
+      "captions": "unknown",
+      "slide_descriptions": "verified",
+      "front_seating": "unknown",
+      "interpreter": "available",
+      "quiet_room_id": "quiet-room-1",
+      "quiet_room_walk_minutes": 3,
+      "noise": "high",
+      "crowd": "low"
+    },
+    "backup_talk_ids": []
+  }
+]
