@@ -6,6 +6,8 @@ class Settings(BaseSettings):
 
     es_url: str = ""
     es_api_key: str = ""
+    # Inference endpoint for the semantic_text field. Serverless includes Jina embeddings; set this to override.
+    es_inference_id: str = ""
     openai_api_key: str = ""
     # Comma-separated browser origins allowed to call the API. The default is the local Next.js dev server.
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"

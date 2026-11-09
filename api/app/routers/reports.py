@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 
 from app.deps import get_store
+from app.es import client as es
 from app.schemas import ReportCreate, ReportResult
 from app.services.store import Store
 from app.telemetry import span
@@ -17,4 +18,9 @@ def create_report(body: ReportCreate, store: Store = Depends(get_store)) -> Repo
     with span("reports.create") as s:
         result = store.add_report(body)
         s.set_attribute("confirmed", result.confirmed)
+        r = store.reports[-1]
+        es.mirror(es.REPORTS, f"{r.created_at.timestamp():.6f}-{r.device_token}", {
+            "problem": r.problem, "location_id": r.location_id, "device_token": r.device_token,
+            "created_at": r.created_at.isoformat(),
+        })  # fmt: skip
         return result

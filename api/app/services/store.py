@@ -16,6 +16,7 @@ from datetime import UTC, datetime, timedelta
 
 from app.data.talks import TALK_BY_ID, TALKS, Talk, at
 from app.data.venue import DEFAULT_ELEVATORS
+from app.es import client as es
 from app.planner.graph import Graph
 from app.schemas import (
     AckCounts,
@@ -168,6 +169,7 @@ class Store:
         return next((c for c in self.changes if c.id == change_id), None)
 
     def _broadcast(self, change: ChangeOut) -> None:
+        es.mirror(es.CHANGES, change.id, change.model_dump(mode="json", exclude={"id"}))
         for q in list(self.subscribers):
             try:
                 q.put_nowait(change)

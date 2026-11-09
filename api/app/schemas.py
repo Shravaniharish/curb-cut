@@ -153,7 +153,7 @@ class SearchHit(Strict):
 
 class SearchResponse(Strict):
     hits: list[SearchHit]
-    backend: Literal["local"] = "local"
+    backend: Literal["local", "elasticsearch"] = "local"
 
 
 # ---- Routes, plan, replan --------------------------------------------------------------------------------
