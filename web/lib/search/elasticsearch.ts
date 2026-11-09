@@ -29,12 +29,15 @@ export function parseSearchResponse(body: unknown): SearchHit[] {
 }
 
 export class ElasticsearchSearchAdapter implements TalkSearchAdapter {
-  readonly backend = "elasticsearch" as const;
-  readonly label = "Elasticsearch search";
+  readonly label: string;
   constructor(
     private readonly apiBase: string,
     private readonly fetchImpl: typeof fetch = (...args) => fetch(...args),
-  ) {}
+    /** "api" is the Curb Cut API's own keyword search; "elasticsearch" is the same call once it is backed by Elastic. */
+    readonly backend: "elasticsearch" | "api" = "elasticsearch",
+  ) {
+    this.label = backend === "api" ? "Curb Cut API search" : "Elasticsearch search";
+  }
 
   async search(query: string, signal?: AbortSignal): Promise<SearchHit[]> {
     let res: Response;

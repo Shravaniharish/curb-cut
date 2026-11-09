@@ -8,7 +8,7 @@ export interface SearchHit {
   matched: string[];
 }
 
-export type SearchBackend = "demo" | "elasticsearch";
+export type SearchBackend = "demo" | "elasticsearch" | "api";
 
 export interface TalkSearchAdapter {
   readonly backend: SearchBackend;

@@ -9,8 +9,10 @@
  */
 import { useState } from "react";
 import { BigChoiceList } from "@/components/BigChoiceList";
-import { PageHeading, PrimaryButton, SecondaryButton } from "@/components/ui";
+import { ErrorState, PageHeading, PrimaryButton, SecondaryButton } from "@/components/ui";
 import { WaitForState } from "@/components/WaitForState";
+import { LIVE, sendReport } from "@/lib/api";
+import type { ReportResult } from "@/lib/api";
 import { CONFIRMATIONS_NEEDED, PROBLEM_CHOICES, deviceToken, elevatorForLocation, locationLabel, locationsFor, problemLabel } from "@/lib/reports";
 import { ROUTES } from "@/lib/routes";
 import { useApp } from "@/lib/store";
@@ -21,14 +23,31 @@ function ReportProblemFlow() {
   const [problem, setProblem] = useState<ReportProblem | null>(null);
   const [locationId, setLocationId] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
+  const [result, setResult] = useState<ReportResult | null>(null);
 
   const elevator = locationId ? elevatorForLocation(locationId) : null;
   const alreadyDown = elevator ? state.elevatorStatus[elevator] === "out_of_service" : false;
 
-  function send(place: string) {
+  async function send(place: string) {
     setLocationId(place);
     if (!problem) return;
-    recordReport({ problem, locationId: place, deviceToken: deviceToken() ?? "unavailable" });
+    const token = deviceToken() ?? "unavailable";
+    setFailure(null);
+    if (LIVE) {
+      // Only say "sent" once the service has said so. A failure leaves the choice on screen to try again.
+      setSending(true);
+      try {
+        setResult(await sendReport(problem, place, token.length >= 8 ? token : `anon-${Date.now()}`));
+      } catch (e) {
+        setSending(false);
+        setFailure(e instanceof Error ? e.message : "The report was not sent.");
+        return;
+      }
+      setSending(false);
+    }
+    recordReport({ problem, locationId: place, deviceToken: token });
     setSent(true);
   }
 
@@ -42,6 +61,8 @@ function ReportProblemFlow() {
     setProblem(null);
     setLocationId(null);
     setSent(false);
+    setResult(null);
+    setFailure(null);
   }
 
   if (sent && problem && locationId) {
@@ -58,11 +79,19 @@ function ReportProblemFlow() {
             same place are what change anyone&apos;s route.
           </p>
         </div>
-        <p className="status-note">
-          In this demo your report is saved on this phone only. Nothing was sent: there is no server behind this
-          screen yet.
-        </p>
-        {elevator && !alreadyDown && (
+        {LIVE ? (
+          <p className="status-note" role="status">
+            {result?.confirmed
+              ? "Someone else has already reported this. Routes that use it have been changed for everyone affected."
+              : `Sent to the Curb Cut service. It needs ${result?.needed ?? CONFIRMATIONS_NEEDED} reports from different phones before anyone is rerouted.`}
+          </p>
+        ) : (
+          <p className="status-note">
+            In this demo your report is saved on this phone only. Nothing was sent: there is no server behind this
+            screen.
+          </p>
+        )}
+        {!LIVE && elevator && !alreadyDown && (
           <details className="collapse">
             <summary>Demo: act as the second report</summary>
             <p className="small muted">
@@ -74,7 +103,7 @@ function ReportProblemFlow() {
             </SecondaryButton>
           </details>
         )}
-        {elevator && alreadyDown && (
+        {!LIVE && elevator && alreadyDown && (
           <p className="status-note" role="status">
             Elevator {elevator} is already marked not working on this device, so your routes already leave it out.
           </p>
@@ -95,6 +124,12 @@ function ReportProblemFlow() {
           choices={locationsFor(problem, graph).map((place) => ({ value: place.id, label: place.label }))}
           onChoose={send}
         />
+        {sending && <p role="status">Sending…</p>}
+        {failure && (
+          <ErrorState title="Your report was not sent">
+            <p>{failure} Choose the place again to try again.</p>
+          </ErrorState>
+        )}
         <SecondaryButton onClick={() => setProblem(null)}>Back</SecondaryButton>
       </div>
     );

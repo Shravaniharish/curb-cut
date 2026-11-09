@@ -5,10 +5,12 @@
  * person or device id. They live under their own "curbcut." key so Reset still clears them, and they sync between
  * tabs so the presenter console and the session companion can run side by side in the demo.
  *
- * shortcut: browser storage stands in for `GET/POST /api/sessions/{id}/questions`, so questions only reach tabs in
- * this browser. Swap load/save for the API once Part C's backend (M2) exists.
+ * Demo mode: browser storage is the whole story, so questions only reach tabs in this browser. Live mode
+ * (`NEXT_PUBLIC_API_MODE=live`): the API holds the questions, so the presenter's laptop and every phone see the same
+ * list. This storage is then just a cache that the screens already read, refreshed every few seconds.
  */
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { LIVE, askQuestion, getQuestions, markQuestionRead } from "./api";
 import { KEY_PREFIX } from "./storage";
 import { newId } from "./store";
 import type { WrittenQuestion } from "./types";
@@ -80,6 +82,8 @@ function subscribe(onChange: () => void): () => void {
   };
 }
 
+const POLL_MS = 2500;
+
 export interface QuestionsApi {
   questions: WrittenQuestion[];
   ask(text: string, nowIso: string): boolean;
@@ -89,18 +93,46 @@ export interface QuestionsApi {
 /** Questions for one talk, oldest first. */
 export function useQuestions(talkId: string): QuestionsApi {
   const all = useSyncExternalStore(subscribe, snapshot, () => EMPTY);
+
+  const refresh = useCallback(async () => {
+    if (!LIVE) return;
+    try {
+      const fromApi = await getQuestions(talkId);
+      write((qs) => [...qs.filter((q) => q.talkId !== talkId), ...fromApi]);
+    } catch {
+      /* keep showing the last list; the screens do not claim it is fresh */
+    }
+  }, [talkId]);
+  useEffect(() => {
+    if (!LIVE) return;
+    void refresh();
+    const id = setInterval(() => void refresh(), POLL_MS);
+    return () => clearInterval(id);
+  }, [refresh]);
+
   const questions = all.filter((q) => q.talkId === talkId).sort((a, b) => a.askedAt.localeCompare(b.askedAt));
   const ask = useCallback(
     (text: string, nowIso: string) => {
       const clean = text.trim().slice(0, QUESTION_MAX_LENGTH);
       if (!clean) return false;
+      if (LIVE) {
+        // Optimistic only after the API accepts it, so a question is never shown as asked when it was not.
+        askQuestion(talkId, clean, nowIso).then(() => refresh()).catch(() => {});
+        return true;
+      }
       return write((qs) => [...qs, { id: `q-${newId()}`, talkId, text: clean, askedAt: nowIso, readOutAt: null }]);
     },
-    [talkId],
+    [talkId, refresh],
   );
   const markReadOut = useCallback(
-    (id: string, nowIso: string) => write((qs) => qs.map((q) => (q.id === id && !q.readOutAt ? { ...q, readOutAt: nowIso } : q))),
-    [],
+    (id: string, nowIso: string) => {
+      if (LIVE) {
+        markQuestionRead(talkId, id).then(() => refresh()).catch(() => {});
+        return true;
+      }
+      return write((qs) => qs.map((q) => (q.id === id && !q.readOutAt ? { ...q, readOutAt: nowIso } : q)));
+    },
+    [talkId, refresh],
   );
   return { questions, ask, markReadOut };
 }

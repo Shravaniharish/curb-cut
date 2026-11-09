@@ -6,10 +6,14 @@
  * Only the person's own device decides whether they are affected: it compares the route their plan needed before
  * the change with the route it needs now. A change that does not touch their plan raises no alert at all.
  *
- * In this demo the event changes come from the simulated elevator controls and from a confirmed problem report.
- * There is no live venue feed, so every alert it raises is marked as a simulated condition.
+ * Demo mode (default): event changes come from the simulated elevator controls and are worked out on the device, so
+ * every alert is marked as a simulated condition. Live mode (`NEXT_PUBLIC_API_MODE=live`): the API decides, and
+ * `ApiSync` hands the finished alert over through the alert bus; the local elevator check is switched off so one
+ * change never raises two alerts.
  */
 import { useEffect, useRef, useState } from "react";
+import { LIVE } from "@/lib/api";
+import { subscribeToAlerts } from "@/lib/alertBus";
 import { Dialog } from "./Dialog";
 import { ChangeAlert } from "./ChangeAlert";
 import { buildElevatorDownAlert, buildElevatorFixedAlert, routeUsedElevator } from "@/lib/changes";
@@ -33,7 +37,12 @@ export function ChangeWatcher() {
   }, [ctx]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!LIVE) return;
+    return subscribeToAlerts((draft) => setOpen(recordAlert(draft)));
+  }, [recordAlert]);
+
+  useEffect(() => {
+    if (!ready || LIVE) return;
     const previous = seen.current;
     seen.current = { ...state.elevatorStatus };
     if (!previous) return; // first read: the starting demo condition is not a change

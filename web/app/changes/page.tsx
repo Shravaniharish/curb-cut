@@ -12,6 +12,7 @@ import { BigChoiceList } from "@/components/BigChoiceList";
 import { ChangeAlert } from "@/components/ChangeAlert";
 import { PageHeading, SecondaryButton } from "@/components/ui";
 import { WaitForState } from "@/components/WaitForState";
+import { LIVE, alertFromApi, replanPersonal } from "@/lib/api";
 import { LATE_CHOICES, buildBreakNowAlert, buildMissedTalkAlert, buildRunningLateAlert } from "@/lib/changes";
 import type { LateChoice } from "@/lib/changes";
 import { ROUTES } from "@/lib/routes";
@@ -35,21 +36,48 @@ function MyPlansChanged() {
   const ctx = usePlanContext();
   const [what, setWhat] = useState<What | null>(null);
   const [result, setResult] = useState<AlertRecord | null>(null);
+  const [onDevice, setOnDevice] = useState(false);
 
   function finish(alertId: string) {
     acknowledgeAlert(alertId);
     router.push(ROUTES.plan);
   }
 
+  /**
+   * Live mode asks the API to re-plan and falls back to the same planner on this device if it cannot be reached, and
+   * says so. Demo mode always works on the device. Either way no reason is asked for and none is sent.
+   */
+  async function resolve(
+    personal: Parameters<typeof replanPersonal>[2],
+    local: () => ReturnType<typeof buildMissedTalkAlert>,
+  ) {
+    if (LIVE) {
+      try {
+        const plan = { talkIds: ctx.plan.map((t) => t.id), currentLocationId: ctx.currentLocationId, nowIso: ctx.nowIso };
+        const res = await replanPersonal(state.prefs, plan, personal);
+        if (res.alert) {
+          setOnDevice(false);
+          setResult(recordAlert(alertFromApi(res.alert)));
+          return;
+        }
+      } catch {
+        /* fall through to the device */
+      }
+      setOnDevice(true);
+    }
+    setResult(recordAlert(local()));
+  }
+
   function choose(value: What) {
     setWhat(value);
-    if (value === "missed") setResult(recordAlert(buildMissedTalkAlert(ctx)));
-    else if (value === "break") setResult(recordAlert(buildBreakNowAlert(ctx)));
+    if (value === "missed") void resolve({ type: "missed" }, () => buildMissedTalkAlert(ctx));
+    else if (value === "break") void resolve({ type: "break_now" }, () => buildBreakNowAlert(ctx));
   }
 
   function startOver() {
     setWhat(null);
     setResult(null);
+    setOnDevice(false);
   }
 
   if (result) {
@@ -57,6 +85,7 @@ function MyPlansChanged() {
       <div className="stack">
         <PageHeading>Your plan is updated</PageHeading>
         <p className="muted">Saved to your alerts on this device as &ldquo;Your change&rdquo;.</p>
+        {onDevice && <p className="status-note">The Curb Cut service could not be reached, so this was worked out on this device.</p>}
         <ChangeAlert alert={result} style={state.prefs.notificationStyle} okLabel="OK" onOk={() => finish(result.id)} withHeading={false} />
         <SecondaryButton onClick={startOver}>Something else happened</SecondaryButton>
       </div>
@@ -71,7 +100,10 @@ function MyPlansChanged() {
         <BigChoiceList
           legend="About how late?"
           choices={LATE_CHOICES.map((minutes) => ({ value: String(minutes) as `${LateChoice}`, label: LATE_LABELS[minutes] }))}
-          onChoose={(value) => setResult(recordAlert(buildRunningLateAlert(ctx, Number(value) as LateChoice)))}
+          onChoose={(value) => {
+            const minutes = Number(value) as LateChoice;
+            void resolve({ type: "late", minutes }, () => buildRunningLateAlert(ctx, minutes));
+          }}
         />
         <SecondaryButton onClick={startOver}>Back</SecondaryButton>
       </div>
