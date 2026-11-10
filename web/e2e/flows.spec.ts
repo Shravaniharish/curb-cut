@@ -226,6 +226,16 @@ test.describe("exports, reminders, keyboard", () => {
   });
   test("keyboard only: skip link first, and the whole onboarding works without a mouse", async ({ page }) => {
     await page.goto("/");
+    // The page shows a loader until saved settings are read; keys pressed during it are lost, so wait for the real page.
+    await expect(page.getByRole("link", { name: "Get started" })).toBeVisible();
+    // Swapping the loader for the page makes Chrome lose its keyboard starting point; put it back at the top.
+    await page.evaluate(() => {
+      const start = document.createElement("span");
+      start.tabIndex = -1;
+      document.body.prepend(start);
+      start.focus();
+      start.remove();
+    });
     await page.keyboard.press("Tab");
     await expect(page.getByRole("link", { name: "Skip to main content" })).toBeFocused();
     await page.keyboard.press("Tab");
